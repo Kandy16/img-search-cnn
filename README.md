@@ -2,10 +2,10 @@
 Website for our research project
 
 ## Cloning the repo
-1. `git clone https://github.com/madhurakhal/deeplearning.git`
+1. `https://github.com/Kandy16/img-search-cnn.git`
 
 ## Setup virtual environment
-1. `cd deeplearning`
+1. `cd img-search-cnn`
 2. `python3 -m venv .`
 3. Activate virutal environment `source bin/activate`
 3. `pip install -r requirements.txt`
