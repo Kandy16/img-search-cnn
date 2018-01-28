@@ -22,8 +22,6 @@ current_directory = os.getcwd()
 feedback_dir = current_directory + '/feedbacks/'
 
 parent_path = "/".join(current_directory.split('/')[:-1])
-#file_dir = parent_path + '../../wrok/caffee/dataset/' + 'images/'
-#file_dir = "/home/codingyoddha/wrok/caffee/dataset/images/"
 file_dir = config.CAFEE_IMAGES_PATH
 @app.route('/<path:filename>', methods=['get', ])
 def image(filename):
@@ -89,8 +87,7 @@ import os, numpy, operator, random, pickle
 
 
 
-pathToFeatures = '/home/codingyoddha/wrok/caffee/features/fc8/'
-
+pathToFeatures = config.CAFEE_FC8_PATH
 
 ## for namespacing and very naive implementation . TODO Fuckign refactor this piece of trash
 def for_feedback(images_selected):
