@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %} DeepLearning with CNN {% endblock %} </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/agency.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body id='page-top'>
+  {% include 'nav.html' %}
+  <div class="container main-container">
+    {% block content %}
+
+    {% endblock %}
+  </div>
+  {% include 'footer.html' %}
+</body>
+</html>
+
+
