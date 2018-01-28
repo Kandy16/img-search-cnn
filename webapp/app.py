@@ -8,6 +8,7 @@ from flask import request
 from flask import render_template
 from flask import send_from_directory
 
+import config
 from random import randrange
 
 
@@ -22,7 +23,8 @@ feedback_dir = current_directory + '/feedbacks/'
 
 parent_path = "/".join(current_directory.split('/')[:-1])
 #file_dir = parent_path + '../../wrok/caffee/dataset/' + 'images/'
-file_dir = "/home/codingyoddha/wrok/caffee/dataset/images/"
+#file_dir = "/home/codingyoddha/wrok/caffee/dataset/images/"
+file_dir = config.CAFEE_IMAGES_PATH
 @app.route('/<path:filename>', methods=['get', ])
 def image(filename):
     try:
