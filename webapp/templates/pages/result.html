@@ -1,0 +1,66 @@
+{% extends 'base.html'%}
+{% block content %}
+{% include 'search.html' %}
+<section class="bg-light" id="portfolio">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+            <h2 class="section-heading text-uppercase">Results for</h2>
+            <h3 class="section-subheading text-muted" id='search_text'> {{query}}</h3>
+          </div>
+        </div>
+        <form action="/feedback" id='feedback-form' method='post'>
+
+            <div class="row">
+                {% for image in images %}
+                  <div class="col-md-4 col-sm-6 portfolio-item">
+                    <img class="img-fluid result-img" src="/{{image}}" alt="{{image}}">
+                  </div>
+                {% endfor %}
+
+
+
+            </div>
+            <div class="row">
+                <input type="hidden" name='feedback' id='feedback'>
+                <button id='submit-btn' class='btn btn-success'>Give Feedback</button>
+            </div>
+      </form>
+
+    </section>
+    <script>
+      window.addEventListener('load', function(evt) {
+          evt.preventDefault();
+        var selectedImages = [];
+        var button = document.getElementById('submit-btn');
+
+        document.addEventListener('click', function(evt) {
+          var classList = evt.target.classList;
+          if(classList.contains('result-img')) {
+            classList.toggle('active');
+            var img = evt.target.alt;
+            if(classList.contains('active')) {
+              if (selectedImages.indexOf(img) == -1) {
+                selectedImages.push(img)
+              }
+            } else {
+              var index = selectedImages.indexOf(img);
+              selectedImages.splice(index,1)
+            }
+          }
+        });
+
+        button.addEventListener('click', function(evt) {
+          evt.preventDefault()
+          var query = '{{query}}';
+          var obj = {
+            images: selectedImages,
+            query
+          };
+
+          document.getElementById('feedback').value = JSON.stringify(obj)
+          document.getElementById('feedback-form').submit();
+        });
+      });
+    </script>
+{% endblock %}

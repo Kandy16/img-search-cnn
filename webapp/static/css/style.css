@@ -1,0 +1,23 @@
+#mainNav{
+  border-radius: 0px;
+}
+#main-footer {
+  background: #fbfbfb;
+  width: 100%;
+}
+.main-container {
+  min-height: 84vmin;
+}
+#searchbox, #searchbtn {
+  min-height: 50px;
+}
+.main {
+  margin-top: 350px;
+}
+.result-img {
+  cursor: pointer;
+}
+
+img.active {
+  border: 1px solid green;
+}
