@@ -110,14 +110,16 @@ def feedback():
     else:
         # condition 2
         # when query is totally new
-        feedback = Feedback(query=query, query_vector=query_vector)
+        feedback = Feedback(query=query, feature_vector=query_vector)
 
+    db.session.add(feedback)
+    db.session.commit()
+    
     db_images = []
     for img in images:
         db_images.append(Image(image_url=img, feedback_id=feedback.id))
 
-    db.session.add(db_images)
-    db.session.add(feedback)
+    db.session.add_all(db_images)
     db.session.commit()
 
     rand_images = []
