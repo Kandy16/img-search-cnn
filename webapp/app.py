@@ -8,22 +8,56 @@ from flask import Flask
 from flask import request
 from flask import render_template
 from flask import send_from_directory
-
+from flask_sqlalchemy import SQLAlchemy
+from flask_script import Manager
 import config
 from random import randrange
+
+## handling static images
+basedir = os.getcwd()
+
+## handleing feedback_dir
+feedback_dir = basedir + '/feedbacks/'
+
+parent_path = "/".join(basedir.split('/')[:-1])
+
+try:
+    file_dir = config.CAFEE_IMAGES_PATH
+except Exception as e:
+    file_dir = os.path.join('../', basedir, 'images')
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'weareLearningDeepLearxingokjalsf2oue'
 
-## handling static images
-current_directory = os.getcwd()
+# Database for app
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-## handleing feedback_dir
-feedback_dir = current_directory + '/feedbacks/'
 
-parent_path = "/".join(current_directory.split('/')[:-1])
-file_dir = config.CAFEE_IMAGES_PATH
+class Feedback(db.Model):
+    __tablename__ = 'feedbacks'
+    id = db.Column(db.Integer, primary_key=True)
+    query = db.Column(db.String(64), unique=True)
+    feature_vector = db.Column(db.String(255))
+
+    def __str__(self):
+        return self.query
+
+class Image(db.Model):
+    __tablename__ = 'images'
+    id = db.Column(db.Integer, primary_key=True)
+    image_url = db.Column(db.String(128))
+    feedback_id = db.Column(db.Integer, db.ForeignKey('feedbacks.id'))
+    feedback = db.relationship('Feedback', backref='feedback')
+
+
+    def __str__(self):
+        return self.image_url
+
+
 @app.route('/<path:filename>', methods=['get', ])
 def image(filename):
     try:
@@ -54,6 +88,13 @@ def feedback():
     #if query is not None:
     #    return "There is no query "
     #return "thankyou for your feedback"
+
+    # condition 1
+    # when the query is already in database
+
+
+    # condition 2
+    # when query is totally new
 
     rand_images = []
     for val in neighbour:
@@ -87,8 +128,12 @@ def display_random_images(start, end, number):
 import os, numpy, operator, random, pickle
 
 
+try:
+    pathToFeatures = config.CAFEE_FC8_PATH
+except Exception as e:
+    # TODO change the directory to the good one
+    pathToFeatures = os.path.join('../', basedir, 'images')
 
-pathToFeatures = config.CAFEE_FC8_PATH
 
 ## for namespacing and very naive implementation . TODO Fuckign refactor this piece of trash
 def for_feedback(images_selected):
@@ -184,6 +229,7 @@ def buildQueryVector(relevantFeatures, irrelevantFeatures):
     return query_vector
 
 
+manager = Manager(app)
 if __name__ == '__main__':
     # TODO: Please remove while going to production
-    app.run(debug=True)
+    manager.run()
