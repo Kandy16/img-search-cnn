@@ -10,6 +10,7 @@ from flask import render_template
 from flask import send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
 import config
 from random import randrange
 
@@ -73,8 +74,15 @@ def index():
 @app.route('/search', methods=['POST', ])
 def search():
     search_query = request.form.get('search')
+
+    # condition 1
+    # when query is totally new
     rand_images = ['000001.jpg']
     rand_images = display_random_images(0,1000,10)
+
+    # condition 2
+    # when query is already in database
+
     return render_template('pages/result.html', query=search_query, images=rand_images)
 
 @app.route('/feedback', methods=['POST', ])
@@ -89,12 +97,28 @@ def feedback():
     #    return "There is no query "
     #return "thankyou for your feedback"
 
-    # condition 1
-    # when the query is already in database
 
+    ## 1. call api and get the query vector
+    # query_vector = ml.get_query_vector(image1, ...)
+    query_vector = ''
 
-    # condition 2
-    # when query is totally new
+    feedback = db.session.query(Feedback).filter_by(query=query).first()
+
+    if feedback:
+        ## 2. update feedback
+        feedback.query_vector = query_vector
+    else:
+        # condition 2
+        # when query is totally new
+        feedback = Feedback(query=query, query_vector=query_vector)
+
+    db_images = []
+    for img in images:
+        db_images.append(Image(image_url=img, feedback_id=feedback.id))
+
+    db.session.add(db_images)
+    db.session.add(feedback)
+    db.session.commit()
 
     rand_images = []
     for val in neighbour:
@@ -229,7 +253,9 @@ def buildQueryVector(relevantFeatures, irrelevantFeatures):
     return query_vector
 
 
+migrate = Migrate(app, db)
 manager = Manager(app)
+manager.add_command('db', MigrateCommand)
 if __name__ == '__main__':
     # TODO: Please remove while going to production
     manager.run()
