@@ -2,3 +2,4 @@ bin
 lib
 webapp/__pycache__/
 webapp/data.sqlite
+webapp/.idea/
