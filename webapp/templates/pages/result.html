@@ -17,9 +17,6 @@
                     <img class="img-fluid result-img" src="/{{image}}" alt="{{image}}">
                   </div>
                 {% endfor %}
-
-
-
             </div>
             <div class="row">
                 <input type="hidden" name='feedback' id='feedback'>
@@ -55,7 +52,7 @@
           var query = '{{query}}';
           var obj = {
             images: selectedImages,
-            query
+            query: query
           };
 
           document.getElementById('feedback').value = JSON.stringify(obj)

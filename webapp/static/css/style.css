@@ -21,3 +21,11 @@
 img.active {
   border: 1px solid green;
 }
+
+#settings-form button.active {
+  color: #ffffff;
+  background-color: #000000;
+  border-color: #adadad;
+}
+
+
