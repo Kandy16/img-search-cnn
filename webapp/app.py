@@ -4,13 +4,10 @@
 # 2. Extract method ma model type ()
 
 
-import os
 import json
-from random import randrange
 from datetime import datetime
 
 from PIL import Image
-from io import StringIO
 from flask import Response, abort
 from flask import Flask
 from flask import request
@@ -21,6 +18,7 @@ from flask_migrate import Migrate, MigrateCommand
 
 import config
 from models.models import db
+from models.models import Feedback, Image
 from ml.knn import *
 
 app_settings = {
@@ -78,8 +76,7 @@ def search():
 
     # condition 1
     # when query is totally new
-    rand_images = ['000001.jpg']
-    rand_images = display_random_images(0,1000,10)
+    rand_images = display_random_images(0, 1000, 10)
 
     # condition 2
     # when query is already in database
@@ -112,7 +109,6 @@ def feedback():
     db_images = []
     for img in images:
         db_images.append(Image(image_url=img, feedback_id=feedback.id))
-
 
     db.session.add_all(db_images)
     db.session.commit()
