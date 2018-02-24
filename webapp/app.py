@@ -21,6 +21,7 @@ from flask_migrate import Migrate, MigrateCommand
 
 import config
 from models.models import db
+from ml.knn import *
 
 app_settings = {
     'algorithms': ['KNN', 'Cosine Similarity'],
@@ -105,11 +106,15 @@ def feedback():
     db.session.add(feedback)
     db.session.commit()
 
+    db.session.add(feedback)
+    db.session.commit()
+    
     db_images = []
     for img in images:
         db_images.append(Image(image_url=img, feedback_id=feedback.id))
 
-    db.session.add(db_images)
+
+    db.session.add_all(db_images)
     db.session.commit()
 
     rand_images = []
