@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/agency.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
 </head>
 <body id='page-top'>
   {% include 'nav.html' %}
@@ -16,6 +17,7 @@
     {% endblock %}
   </div>
   {% include 'footer.html' %}
+<script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
 </body>
 </html>
 
