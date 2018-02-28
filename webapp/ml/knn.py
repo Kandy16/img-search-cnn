@@ -1,33 +1,11 @@
-import os, numpy, operator, random, pickle
-basedir = os.getcwd()
-
+import os
+import random
+import numpy
+import operator
 import config
 
 
-
-class KNNClassifier:
-
-    def __init__(self, path_to_features):
-        self._path_to_features = path_to_features
-
-
-    def get_random_images(self, feature_vectors=None):
-        related_images = []
-        if feature_vectors is None:
-            return related_images
-        else:
-            return related_images
-
-
-    # query word "cat"
-    # array of images []
-    # array of features vector []
-
-    def get_related_images():
-        return []
-
-
-
+basedir = os.getcwd()
 
 try:
     pathToFeatures = config.CAFEE_FC8_PATH
@@ -36,16 +14,57 @@ except Exception as e:
     pathToFeatures = os.path.join('../', basedir, 'images/')
 
 
+
+
+class KNNClassifier:
+
+    def __init__(self, path_to_features=None, number_of_images=None):
+        self._number_of_images = number_of_images
+        self._path_to_features = path_to_features
+
+    def get_random_images(self):
+        # i don't know why this numbers are used
+        number = self.number_of_image
+        start = 0
+        end = 3
+        images = []
+        for x in range(0, number):
+            i_rand = random.randrange(start, end)
+            images.append(str(i_rand).zfill(6) + ".jpg")
+        return images
+
+    def get_related_images(self):
+        # query word "cat"
+        # array of images []
+        # array of features vector []
+        return []
+
+    @property
+    def number_of_image(self):
+        return self._number_of_images
+
+    @property.setter
+    def number_of_image(self, number):
+        self._number_of_images = number
+
+
+
+
+
+
+
+
+
 # Helper Utilities
 
 # returns an array of random images filename (of the format xxxxxx.jpg)
-def display_random_images(start, end, number):
-    images = []
-    for x in range(0,number):
-        irand = random.randrange(start, end)
-        images.append(str(irand).zfill(6) + ".jpg")
-    #print(images)
-    return images
+# def display_random_images(start, end, number):
+#     images = []
+#     for x in range(0,number):
+#         irand = random.randrange(start, end)
+#         images.append(str(irand).zfill(6) + ".jpg")
+#     #print(images)
+#     return images
 
 ## for namespacing and very naive implementation . TODO refactor this piece of trash
 def for_feedback(images_selected):
