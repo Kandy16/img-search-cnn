@@ -6,6 +6,7 @@
 
 import json
 from datetime import datetime
+import os
 
 from PIL import Image
 from flask import Response, abort
@@ -19,7 +20,7 @@ from flask_migrate import Migrate, MigrateCommand
 import config
 from models.models import db
 from models.models import Feedback, Image
-from ml.knn import *
+from ml import knn
 
 app_settings = {
     'algorithms': ['KNN', 'Cosine Similarity'],
@@ -27,19 +28,16 @@ app_settings = {
     'message': ''
 }
 
-
-# handling static images
-basedir = os.getcwd()
+# handling base directory i.e. location of the webapp folder in our case
+basedir = config.BASE_DIR
 
 # handling feedback_dir
-feedback_dir = basedir + '/feedbacks/'
+feedback_dir = config.FEEDBACK_DIR
 
-parent_path = "/".join(basedir.split('/')[:-1])
+parent_path = "/".join(basedir.split('/')[:-1])  #IS it used? //TODO
 
-try:
-    file_dir = config.CAFEE_IMAGES_PATH
-except Exception as e:
-    file_dir = os.path.join('../', basedir, 'images')
+# handling image directory
+img_dir = config.CAFEE_IMAGES_PATH
 
 
 app = Flask(__name__)
@@ -60,14 +58,15 @@ def inject_now():
 @app.route('/<path:filename>', methods=['get', ])
 def image(filename):
     try:
-        return send_from_directory(file_dir, filename)
+        return send_from_directory(img_dir, filename)
     except:
         abort(404)
 
 
 @app.route('/', methods=['get', ])
 def index():
-    return render_template('pages/index.html')
+    # note this file_dir sent as argument was to just for testing. Also remove {{file_dir}} from index.html when removing this.
+    return render_template('pages/index.html' , file_dir= img_dir)
 
 
 @app.route('/search', methods=['POST', ])
@@ -76,7 +75,9 @@ def search():
 
     # condition 1
     # when query is totally new
-    rand_images = display_random_images(0, 1000, 10)
+    #rand_images = display_random_images(0, 1000, 10)
+    obj = knn.KNNClassifier()
+    rand_images = obj.get_random_images()
 
     # condition 2
     # when query is already in database
@@ -139,9 +140,6 @@ def page_not_found(e):
     return render_template('pages/404.html'), 404
 
 
-migrate = Migrate(app, db)
-manager = Manager(app)
-manager.add_command('db', MigrateCommand)
-if __name__ == '__main__':
-    # TODO: Please remove while going to production
-    manager.run()
+# migrate = Migrate(app, db)
+# manager = Manager(app)
+# manager.add_command('db', MigrateCommand)

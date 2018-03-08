@@ -13,8 +13,8 @@ except Exception as e:
     # TODO change the directory to the good one
     pathToFeatures = os.path.join('../', basedir, 'images/')
 
-
-
+# bahira ko lagi ../
+img_path = os.path.join(basedir, 'images/')
 
 class KNNClassifier:
 
@@ -24,13 +24,16 @@ class KNNClassifier:
 
     def get_random_images(self):
         # i don't know why this numbers are used
-        number = self.number_of_image
+        number = self.number_of_images
+        number = 10
         start = 0
         end = 3
         images = []
         for x in range(0, number):
             i_rand = random.randrange(start, end)
-            images.append(str(i_rand).zfill(6) + ".jpg")
+            img_name = str(i_rand).zfill(6) + ".jpg"
+            images.append(img_name)
+        print (images)
         return images
 
     def get_related_images(self):
@@ -40,12 +43,12 @@ class KNNClassifier:
         return []
 
     @property
-    def number_of_image(self):
+    def number_of_images(self):
         return self._number_of_images
 
-    @property.setter
-    def number_of_image(self, number):
-        self._number_of_images = number
+    @number_of_images.setter
+    def number_of_images(self, number_of_images):
+        self._number_of_images = number_of_images
 
 
 
