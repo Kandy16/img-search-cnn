@@ -1,0 +1,6 @@
+/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/images-tryF/015000.jpg
+/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/images-tryF/014999.jpg
+/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/images-tryF/test_1739.JPEG
+/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/images-tryF/test_1741.JPEG
+/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/images-tryF/test_1742.JPEG
+/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/images-tryF/test_1738.JPEG

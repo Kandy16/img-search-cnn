@@ -39,6 +39,8 @@ parent_path = "/".join(basedir.split('/')[:-1])  #IS it used? //TODO
 # handling image directory
 img_dir = config.CAFEE_IMAGES_PATH
 
+# object of knnclassifier used for search and feedback
+obj_knn = knn.KNNClassifier()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'weareLearningDeepLearxingokjalsf2oue'
@@ -66,7 +68,7 @@ def image(filename):
 @app.route('/', methods=['get', ])
 def index():
     # note this file_dir sent as argument was to just for testing. Also remove {{file_dir}} from index.html when removing this.
-    return render_template('pages/index.html' , file_dir= img_dir)
+    return render_template('pages/index.html' , file_dir= "")
 
 
 @app.route('/search', methods=['POST', ])
@@ -76,8 +78,8 @@ def search():
     # condition 1
     # when query is totally new
     #rand_images = display_random_images(0, 1000, 10)
-    obj = knn.KNNClassifier()
-    rand_images = obj.get_random_images()
+    
+    rand_images = obj_knn.get_random_images()
 
     # condition 2
     # when query is already in database

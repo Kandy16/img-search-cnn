@@ -7,3 +7,5 @@ webapp/dataset
 *.pyc
 ./**/*.pyc
 include/
+webapp/feature_extraction/*.pyc
+webapp/feature_extraction/models/
