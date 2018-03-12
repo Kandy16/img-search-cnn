@@ -3,3 +3,9 @@ lib
 webapp/__pycache__/
 webapp/data.sqlite
 webapp/.idea/
+webapp/dataset
+*.pyc
+./**/*.pyc
+include/
+webapp/feature_extraction/*.pyc
+webapp/feature_extraction/models/
