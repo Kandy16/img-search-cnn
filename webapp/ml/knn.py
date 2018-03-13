@@ -27,7 +27,7 @@ class KNNClassifier:
         number = self.number_of_images
         number = 10
         start = 0
-        end = 3
+        end = 1000
         images = []
         for x in range(0, number):
             i_rand = random.randrange(start, end)
