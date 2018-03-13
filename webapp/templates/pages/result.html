@@ -6,9 +6,10 @@
         <div class="row">
           <div class="col-lg-12 text-center">
             <h2 class="section-heading text-uppercase">Results for</h2>
-            <h3 class="section-subheading text-muted" id='search_text'> {{query}}</h3>
+            <h3 class="section-subheading text-muted" id='search_text'> {{query}}</h3>             
           </div>
         </div>
+        {{image_number}}
         <form action="/feedback" id='feedback-form' method='post'>
 
             <div class="row">
@@ -16,6 +17,7 @@
                   <div class="col-md-4 col-sm-6 portfolio-item">
                     <img class="img-fluid result-img" src="{{image}}" alt="{{image}}">
                   </div>
+
                 {% endfor %}
             </div>
             <div class="row">

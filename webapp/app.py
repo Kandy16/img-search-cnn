@@ -22,6 +22,9 @@ from models.models import db
 from models.models import Feedback, Image
 from ml import knn
 
+# import for cosine similarity
+from ml.cosine import cosine_similarity_cluster as cs
+
 app_settings = {
     'algorithms': ['KNN', 'Cosine Similarity'],
     'current': 'KNN',
@@ -89,38 +92,63 @@ def search():
 
 @app.route('/feedback', methods=['POST', ])
 def feedback():
+
+    # Code to test cosine similarity 
+    # First is to ask if the json file has been created usually with the following code.
+
     feedback_raw = request.form.to_dict()
     feedback_dict = json.loads(feedback_raw['feedback'])
-    neighbour = for_feedback(feedback_dict['images'])
+    #neighbour = for_feedback(feedback_dict['images'])
     query = feedback_dict['query']
     images = feedback_dict['images']
-    query_vector = ''
+    str1 = images[0]
+    image_name = os.path.splitext(str1)[0]
 
-    feedback = db.session.query(Feedback).filter_by(query=query).first()
+    print("whtaaaaaaaaaaaaaaaaaaaaaaa" , image_name)
 
-    if feedback:
-        feedback.query_vector = query_vector
-    else:
-        feedback = Feedback(query=query, feature_vector=query_vector)
-
-    db.session.add(feedback)
-    db.session.commit()
-
-    db.session.add(feedback)
-    db.session.commit()
+    obj = cs.CosineSimilarityCluster()
+    #obj.nearest_neighbours_for_each_imagevector()
+    # using filenames from neighbours json file test
+    rand_images = obj.get_filenames_cosine_neighbour("/var/www/clone-img-search-cnn/img-search-cnn/webapp/ml/cosine/cosine_nearest_neighbors/" + image_name +".json")
     
-    db_images = []
-    for img in images:
-        db_images.append(Image(image_url=img, feedback_id=feedback.id))
-
-    db.session.add_all(db_images)
-    db.session.commit()
-
-    rand_images = []
-    for val in neighbour:
-        rand_images.append(val[1].replace('txt', 'jpg'))
     search_query = "cat"
-    return render_template('pages/result.html', query=search_query, images=rand_images)
+
+    return render_template('pages/result.html', query=search_query, images=rand_images , image_number = image_name)
+
+
+    # NEED TO ASK MADHU ABOUT DATABASE
+    # feedback_raw = request.form.to_dict()
+    # feedback_dict = json.loads(feedback_raw['feedback'])
+    # neighbour = for_feedback(feedback_dict['images'])
+    # query = feedback_dict['query']
+    # images = feedback_dict['images']
+    # query_vector = ''
+
+    # feedback = db.session.query(Feedback).filter_by(query=query).first()
+
+    # if feedback:
+    #     feedback.query_vector = query_vector
+    # else:
+    #     feedback = Feedback(query=query, feature_vector=query_vector)
+
+    # db.session.add(feedback)
+    # db.session.commit()
+
+    # db.session.add(feedback)
+    # db.session.commit()
+    
+    # db_images = []
+    # for img in images:
+    #     db_images.append(Image(image_url=img, feedback_id=feedback.id))
+
+    # db.session.add_all(db_images)
+    # db.session.commit()
+
+    # rand_images = ["014999.jpg" , "000090.jpg"]
+    # for val in neighbour:
+    #     rand_images.append(val[1].replace('txt', 'jpg'))
+    # search_query = "cat"
+    # return render_template('pages/result.html', query=search_query, images=rand_images)
 
 
 @app.route('/settings', methods=['post', 'get'])
