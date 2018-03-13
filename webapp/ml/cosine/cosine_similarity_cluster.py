@@ -4,24 +4,25 @@ from nltk import ngrams
 import random, json, glob, os, codecs, random
 import numpy as np
 from ast import literal_eval
+import pathlib2
 
 class CosineSimilarityCluster(object):
-  def __init__(self  , imagevectors_filepath= "/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/features/fc8", dimension = 1000 , n_nearest_neighbors = 10 , trees= 100):
+  def __init__(self,  dimension = 1000 , n_nearest_neighbors = 10 , trees= 100):
     # data structures
     self.file_index_to_file_name = {}
     self.file_index_to_file_vector = {}
     self.chart_image_positions = {}
-    self.imagevectors_filepath = imagevectors_filepath
     self.n_nearest_neighbors = n_nearest_neighbors
     self.dimension = dimension
     self.trees = trees
 
-  def nearest_neighbours_for_each_imagevector(self):        
+  def nearest_neighbours_for_each_imagevector(self , imagevectors_filepath= "/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/features/",   cosine_neighbour_save_path  = "/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/cosine/cosine_nearest_neighbors/", model = "" , layer = "fc8"):        
     # config
     dims = self.dimension
     n_nearest_neighbors = self.n_nearest_neighbors
     trees = self.trees
-    infiles = glob.glob(self.imagevectors_filepath + '/*.txt')
+    imagevectors_filepath = os.path.join(imagevectors_filepath , model, layer)
+    infiles = glob.glob(imagevectors_filepath + '/*.txt')
 
     # build ann index
     t = AnnoyIndex(dims)
@@ -36,12 +37,13 @@ class CosineSimilarityCluster(object):
       t.add_item(file_index, file_vector)
     t.build(trees)
     print(os.getcwd())
-    if not os.path.exists(self.imagevectors_filepath):
+    if not os.path.exists(imagevectors_filepath):
       print("No such file exits where we can load the image vectors from")
     else:      
       # create a nearest neighbors json file for each input
-      if not os.path.exists('cosine_nearest_neighbors'):
-        os.makedirs('cosine_nearest_neighbors')
+      cosine_neighbour_save_path = os.path.join(cosine_neighbour_save_path, model , layer) 
+      if not os.path.exists(cosine_neighbour_save_path):
+        pathlib2.Path(cosine_neighbour_save_path).mkdir(parents=True, exist_ok=True)
 
       for i in self.file_index_to_file_name.keys():
         master_file_name = self.file_index_to_file_name[i]
@@ -61,15 +63,28 @@ class CosineSimilarityCluster(object):
             'similarity': rounded_similarity
           })
 
-        with open('cosine_nearest_neighbors/' + master_file_name + '.json', 'w') as out:
+        with open(os.path.join(cosine_neighbour_save_path, master_file_name) + '.json', 'w') as out:
           json.dump(named_nearest_neighbors, out)
 
 
-  def get_filenames_cosine_neighbour(self, filepath):
-    with open(filepath) as f:
-        for line in f:  # note there will just be one line in the file i.e list of dictionaries
-          mainlist = list(literal_eval(line))
-    return [i['filename'] + '.jpg' for i in mainlist]
+  def get_feedback(self, calculated_cosine_neighbours_path, relevant_images):
+    if not os.path.exists(calculated_cosine_neighbours_path):
+      print("No such file exits where we can load the nearest neighbours json file from")
+      print("Please call nearest_neighbours_for_each_imagevector from cosine_similarity_cluster class for creating relevant folder.")
+      return []
+    else:       
+      # TODO we have to deal with list of images given as feedback to us
+
+      # For now we only take the first image
+      str1 = relevant_images[0]
+      image_name = os.path.splitext(str1)[0]
+
+      file_path = calculated_cosine_neighbours_path + image_name +".json"
+
+      with open(file_path) as f:
+          for line in f:  # note there will just be one line in the file i.e list of dictionaries
+            mainlist = list(literal_eval(line))
+      return [i['filename'] + '.jpg' for i in mainlist]
 
 if __name__ == "__main__":
   obj = CosineSimilarityCluster()

@@ -9,3 +9,7 @@ TEST_CAFEE_IMAGES_PATH = os.path.join(BASE_DIR, 'dataset/images-tryF/')  # can d
 FEEDBACK_DIR = os.path.join(BASE_DIR , 'feedbacks/')
 
 FEATURE_EXTRACTION_MODELS_DOWNLOAD_PATH =  os.path.join(BASE_DIR, 'feature_extraction/')
+
+KNN_FEATURE_PATH = os.path.join(BASE_DIR, 'dataset/imagevectors/')
+
+KNN_DATASET_PATH = os.path.join(BASE_DIR, 'dataset/KNN/')
