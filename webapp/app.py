@@ -20,7 +20,9 @@ from flask_migrate import Migrate, MigrateCommand
 import config
 from models.models import db
 from models.models import Feedback, Image
-from ml import knn
+
+# import for knn machine learning implementation
+from ml.knn import knn
 
 # import for cosine similarity
 from ml.cosine import cosine_similarity_cluster as cs
@@ -43,7 +45,7 @@ parent_path = "/".join(basedir.split('/')[:-1])  #IS it used? //TODO
 img_dir = config.CAFEE_IMAGES_PATH
 
 # object of knnclassifier used for search and feedback
-obj_knn = knn.KNNClassifier()
+obj_knn = knn.KNN()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'weareLearningDeepLearxingokjalsf2oue'
@@ -79,10 +81,8 @@ def search():
     search_query = request.form.get('search')
 
     # condition 1
-    # when query is totally new
-    #rand_images = display_random_images(0, 1000, 10)
-    
-    rand_images = obj_knn.get_random_images()
+    # when query is totally new    
+    rand_images = obj_knn.get_random_images(10)  #
 
     # condition 2
     # when query is already in database
@@ -95,25 +95,27 @@ def feedback():
 
     # Code to test cosine similarity 
     # First is to ask if the json file has been created usually with the following code.
+    try:
+        feedback_raw = request.form.to_dict()
+        feedback_dict = json.loads(feedback_raw['feedback'])
+    except:
+        abort(404)
 
-    feedback_raw = request.form.to_dict()
-    feedback_dict = json.loads(feedback_raw['feedback'])
+    
     #neighbour = for_feedback(feedback_dict['images'])
     query = feedback_dict['query']
     images = feedback_dict['images']
-    str1 = images[0]
-    image_name = os.path.splitext(str1)[0]
 
-    print("whtaaaaaaaaaaaaaaaaaaaaaaa" , image_name)
 
     obj = cs.CosineSimilarityCluster()
     #obj.nearest_neighbours_for_each_imagevector()
     # using filenames from neighbours json file test
-    rand_images = obj.get_filenames_cosine_neighbour("/var/www/clone-img-search-cnn/img-search-cnn/webapp/ml/cosine/cosine_nearest_neighbors/" + image_name +".json")
+    rand_images = obj.get_feedback("/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/cosine/cosine_nearest_neighbors/fc8/" , images)
+    #rand_images = ['000001.jpg']
     
     search_query = "cat"
 
-    return render_template('pages/result.html', query=search_query, images=rand_images , image_number = image_name)
+    return render_template('pages/result.html', query=search_query, images=rand_images , image_number = images[0])
 
 
     # NEED TO ASK MADHU ABOUT DATABASE
