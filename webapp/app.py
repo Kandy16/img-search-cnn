@@ -171,9 +171,8 @@ def page_not_found(e):
     return render_template('pages/404.html'), 404
 
 
-migrate = Migrate(app, db)
-manager = Manager(app)
-manager.add_command('db', MigrateCommand)
-
 if __name__ == '__main__':
+    migrate = Migrate(app, db)
+    manager = Manager(app)
+    manager.add_command('db', MigrateCommand)
     manager.run()
