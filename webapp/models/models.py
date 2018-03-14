@@ -23,3 +23,23 @@ class Image(db.Model):
 
     def __str__(self):
         return self.image_url
+
+class NeuralNetworkModel(db.Model):
+    __tablename__ = 'neuralmodels'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+
+    def __str__(self):
+        return self.name
+
+class NeuralLayer(db.Model):
+    __tablename__ = 'neurallayer'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30))
+    extracted = db.Column(db.Boolean, default=False)
+    neural_network_id = db.Column(db.Integer, db.ForeignKey('neuralmodels.id'))
+    neural_network = db.relationship('NeuralNetworkModel', backref='neural_network')
+
+    def __str__(self):
+        return self.name
+

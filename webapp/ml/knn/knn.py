@@ -41,18 +41,18 @@ class KNN(object):
 
     # this function builds a numpy array for a certain feature vector
     def _buildNumpyArrayForFeaturesByFileName(self, filename_path):
-	    f = open(filename_path, 'r')
-	    data = f.read()
-	    f.close()
-	    return numpy.fromstring(data, dtype=float, sep='\n')
+        f = open(filename_path, 'r')
+        data = f.read()
+        f.close()
+        return numpy.fromstring(data, dtype=float, sep='\n')
 
 
     def prepare_data_for_KNN(self , image_vector_path , save_location):
         # TODO  check if the feature_ oath is set to not NONE
         # TODO # Do we build up the vectors.p for all our models  here?
 
-    	vectors = {}
-		# this will build the numpy array for every feature vector and store it in a pickle file, you need to activate this on your first run
+        vectors = {}
+        # this will build the numpy array for every feature vector and store it in a pickle file, you need to activate this on your first run
         filename = os.path.join(save_location , "vectors.p")
         if not os.path.exists(filename):
             for filename_vector in os.listdir(image_vector_path):
@@ -66,7 +66,7 @@ class KNN(object):
 
 
     def get_feedback(self, relevant_images , dumped_vector_path):
-    	#TODO list of relevant images. First we get all the nearest images for each relevant images and then do the intersection
+        #TODO list of relevant images. First we get all the nearest images for each relevant images and then do the intersection
 
         # For now only the first image from relevant images is taken into account.
         filename_rel = relevant_images[0]
@@ -74,7 +74,7 @@ class KNN(object):
 
         feedback_first_feature_vec = dict_feature_vectors[filename_rel]
         neighbours = self._find_k_neighbours(4, dict_feature_vectors, feedback_first_feature_vec ,'euclidean') 
-           	
+
         return [os.path.splitext(neigbour)[0] + ".jpg" for (_, neigbour) in neighbours]
 
     # this function calculates the euclidean distance between 2 feature vectors

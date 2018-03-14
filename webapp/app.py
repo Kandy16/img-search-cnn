@@ -51,7 +51,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'weareLearningDeepLearxingokjalsf2oue'
 
 # Database for app
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite3')
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
@@ -138,7 +138,6 @@ def feedback():
 
     # db.session.add(feedback)
     # db.session.commit()
-    
     # db_images = []
     # for img in images:
     #     db_images.append(Image(image_url=img, feedback_id=feedback.id))
@@ -172,6 +171,9 @@ def page_not_found(e):
     return render_template('pages/404.html'), 404
 
 
-# migrate = Migrate(app, db)
-# manager = Manager(app)
-# manager.add_command('db', MigrateCommand)
+migrate = Migrate(app, db)
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+
+if __name__ == '__main__':
+    manager.run()
