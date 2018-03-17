@@ -63,8 +63,8 @@ from database.database import Database
 
 @app.before_first_request
 def setup():
-    # Recreate database each time for demo.. 
-    # TODO Remove this once table is created.   
+    # Recreate database each time for demo..
+    # TODO Remove this once table is created.
     Base.metadata.drop_all(bind=db.engine)
     Base.metadata.create_all(bind=db.engine)
     # Till Here Remove
@@ -75,6 +75,7 @@ def setup():
 
 @app.context_processor
 def inject_now():
+
     return {'now': datetime.utcnow()}
 
 
@@ -97,7 +98,7 @@ def search():
     search_query = request.form.get('search')
 
     # condition 1
-    # when query is totally new    
+    # when query is totally new
     rand_images = obj_knn.get_random_images(10)  #
 
     # condition 2
@@ -109,7 +110,7 @@ def search():
 @app.route('/feedback', methods=['POST', ])
 def feedback():
 
-    # Code to test cosine similarity 
+    # Code to test cosine similarity
     # First is to ask if the json file has been created usually with the following code.
     try:
         feedback_raw = request.form.to_dict()
@@ -117,7 +118,7 @@ def feedback():
     except:
         abort(404)
 
-    
+
     #neighbour = for_feedback(feedback_dict['images'])
     query = feedback_dict['query']
     images = feedback_dict['images']
@@ -128,7 +129,7 @@ def feedback():
     # using filenames from neighbours json file test
     rand_images = obj.get_feedback("/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/cosine/cosine_nearest_neighbors/fc8/" , images)
     #rand_images = ['000001.jpg']
-    
+
     search_query = "cat"
 
     return render_template('pages/result.html', query=search_query, images=rand_images , image_number = images[0])
@@ -170,28 +171,27 @@ def feedback():
 
 @app.route('/settings', methods=['post', 'get'])
 def settings():
-	# Have to check if the folders exist and accordingly we have to update database of neural layer i.e. extracted status to true.
-	load_all_rows = db.session.query(NeuralLayer).all()
-	allrow = []
-	for row in load_all_rows:
-		extract_from_layer = row.name
-		pretrained_model = row.neural_network.name
-		smoothed_layer_name = extract_from_layer.replace("/" , "-")
-		filename = os.path.join(config.BASE_DIR, "dataset", "features_etd1a" ,  pretrained_model + ".caffemodel", smoothed_layer_name)
-		if os.path.exists(filename):
-			# This is where we start updating database extracted boolean in neural layer.
-			target_row = db.session.query(NeuralLayer).filter_by(id = row.id).first()
-			target_row.extracted = True
-			db.session.commit()
-		else:
-			target_row = db.session.query(NeuralLayer).filter_by(id = row.id).first()
-			target_row.extracted = False
-			db.session.commit()
-
-	if request.method == 'POST':
-		app_settings['current'] = 'Cosine'
-
-	return render_template('pages/settings.html', app_settings=app_settings , allrow = allrow)
+    # Have to check if the folders exist and accordingly we have to update database of neural layer i.e. extracted status to true.
+    allrow = []
+    if request.method == 'POST':
+        app_settings['current'] = 'Cosine'
+    else:
+        load_all_rows = db.session.query(NeuralLayer).all()
+        for row in load_all_rows:
+            extract_from_layer = row.name
+            pretrained_model = row.neural_network.name
+            smoothed_layer_name = extract_from_layer.replace("/" , "-")
+            filename = os.path.join(config.BASE_DIR, "dataset", "features_etd1a" ,  pretrained_model + ".caffemodel", smoothed_layer_name)
+            if os.path.exists(filename):
+                # This is where we start updating database extracted boolean in neural layer.
+                target_row = db.session.query(NeuralLayer).filter_by(id = row.id).first()
+                target_row.extracted = True
+                db.session.commit()
+            else:
+                target_row = db.session.query(NeuralLayer).filter_by(id = row.id).first()
+                target_row.extracted = False
+                db.session.commit()
+    return render_template('pages/settings.html', app_settings=app_settings , allrow = allrow)
 
 
 @app.route('/extract', methods=['post', ])
