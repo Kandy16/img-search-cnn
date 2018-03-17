@@ -8,6 +8,7 @@
         </div>
         <div class="row">
             {{ message }}
+            {{allrow}}
         </div>
         <form action="/settings" id='settings-form' method='post'>
             <div class="btn-group" role="group" aria-label="...">
@@ -23,7 +24,7 @@
                 <input type="hidden" name='settings' id='settings'>
                 <button id='submit-btn' class='btn btn-success'>Save</button>
             </div>
-      </form>
+        </form>
 
 
         <form action="/extract" id="extract-form" method="post">

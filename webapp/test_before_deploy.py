@@ -2,7 +2,7 @@ import os
 from ml.knn import knn
 import config
 
-from ml.cosine import cosine_similarity_cluster
+#from ml.cosine import cosine_similarity_cluster
 
 
 # Testing KNNN
@@ -17,6 +17,14 @@ from ml.cosine import cosine_similarity_cluster
 
 # TESTING COSINE
 # Lets test cosine similarity which first needs to create the nearest neighbour for each image vector. This is a pre process.
-obj_cosine = cosine_similarity_cluster.CosineSimilarityCluster()
-obj_cosine.nearest_neighbours_for_each_imagevector()
+#obj_cosine = cosine_similarity_cluster.CosineSimilarityCluster()
+#obj_cosine.nearest_neighbours_for_each_imagevector()
 #print(obj_cosine.get_feedback("/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/cosine/cosine_nearest_neighbors/" , ["014999.jpg"]))
+
+
+#Testing Database
+
+from database.database import Database
+
+obj = Database()
+obj.fillin_database()

@@ -18,8 +18,9 @@ from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
 import config
-from models.models import db
-from models.models import Feedback, Image
+from database.models.models import db
+from database.models.models import Feedback, Image, Base, NeuralLayer
+from sqlalchemy import event, DDL
 
 # import for knn machine learning implementation
 from ml.knn import knn
@@ -55,6 +56,21 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'da
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+
+
+# Database fill up initially with default data.
+from database.database import Database
+
+@app.before_first_request
+def setup():
+    # Recreate database each time for demo.. 
+    # TODO Remove this once table is created.   
+    Base.metadata.drop_all(bind=db.engine)
+    Base.metadata.create_all(bind=db.engine)
+    # Till Here Remove
+
+    obj_database = Database()
+    obj_database.fillin_database(db)
 
 
 @app.context_processor
@@ -154,10 +170,28 @@ def feedback():
 
 @app.route('/settings', methods=['post', 'get'])
 def settings():
-    if request.method == 'POST':
-        app_settings['current'] = 'Cosine'
+	# Have to check if the folders exist and accordingly we have to update database of neural layer i.e. extracted status to true.
+	load_all_rows = db.session.query(NeuralLayer).all()
+	allrow = []
+	for row in load_all_rows:
+		extract_from_layer = row.name
+		pretrained_model = row.neural_network.name
+		smoothed_layer_name = extract_from_layer.replace("/" , "-")
+		filename = os.path.join(config.BASE_DIR, "dataset", "features_etd1a" ,  pretrained_model + ".caffemodel", smoothed_layer_name)
+		if os.path.exists(filename):
+			# This is where we start updating database extracted boolean in neural layer.
+			target_row = db.session.query(NeuralLayer).filter_by(id = row.id).first()
+			target_row.extracted = True
+			db.session.commit()
+		else:
+			target_row = db.session.query(NeuralLayer).filter_by(id = row.id).first()
+			target_row.extracted = False
+			db.session.commit()
 
-    return render_template('pages/settings.html', app_settings=app_settings)
+	if request.method == 'POST':
+		app_settings['current'] = 'Cosine'
+
+	return render_template('pages/settings.html', app_settings=app_settings , allrow = allrow)
 
 
 @app.route('/extract', methods=['post', ])

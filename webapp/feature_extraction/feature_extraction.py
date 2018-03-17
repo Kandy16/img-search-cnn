@@ -7,53 +7,62 @@ import os
 import pathlib2 # This just puts the feature vector in the form of array into the file.
 from model_and_prototxt_downloader import ModelAndPrototxtDownloader
 from EnumModels import Models
+import image_list_creator
 
 np.set_printoptions(threshold='nan')
 
 
 class FeatureExtraction(object):
-    def __init__(self , model_download_path):
+    def __init__(self , model_download_path , images_path, main_dir):
+        self.main_dir = main_dir
         self.model_download_path = model_download_path
         self.mdl_proto_downloader = ModelAndPrototxtDownloader(model_download_path)
         # a little hack as we need model path with models folder.
         self.model_download_path = os.path.join(self.model_download_path , "models")
 
+        # Also make images list required for the feature extraction
+        # First we need to create a image list of all the images in a folder. 
+        # Creates image.txt listing the location of all images 
+        il = image_list_creator.ImageListCreator()
+        il.make_list_image_filenames(images_path)
 
-    def extract_features(self, pretrained_model):
+
+    def extract_features(self, pretrained_model , extract_from_layer):
         def errhandler (pretrained_model , _):
             print("Invalid Model Name - " + pretrained_model)
 
-        takeaction = {
-            Models.bvlc_alexnet.name : self._features_alexnet,
-            Models.bvlc_googlenet.name : self._features_googlenet,
-            Models.bvlc_reference_caffenet.name : self._features_reference_caffenet,
-            Models.finetune_flickr_style.name : self._features_finetune_flickr_style
-            # Can add more model and also function associated to it
-        }
-        takeaction.get(pretrained_model , errhandler)(pretrained_model)
+        #replace / if present in layername by dash (-)
+        smoothed_layer_name = extract_from_layer.replace("/" , "-")
+        filename = os.path.join(self.main_dir, "dataset", "features_etd1a" ,  pretrained_model + ".caffemodel", smoothed_layer_name)
+        if not os.path.exists(filename):
+            takeaction = {
+                Models.bvlc_alexnet.name : self._features_alexnet,
+                Models.bvlc_googlenet.name : self._features_googlenet,
+                Models.bvlc_reference_caffenet.name : self._features_reference_caffenet,
+                Models.finetune_flickr_style.name : self._features_finetune_flickr_style
+                # Can add more model and also function associated to it
+            }
+            takeaction.get(pretrained_model , errhandler)(pretrained_model , extract_from_layer)
+        else:
+            print('\n' + 'Features already extracted at ' + filename)
 
 
-    def _features_alexnet(self , pretrained_model):
+    def _features_alexnet(self , pretrained_model , extract_from_layer):
         print("\n ----------Checking if appropriate pre trained model is downloaded and also the associated prototxt file --------")
         self.mdl_proto_downloader.download_model_and_prototxt(pretrained_model)
 
-        extract_from_layer = "fc8"
         input_exp_file = "images.txt"
         model_def = os.path.join(self.model_download_path , "bvlc_alexnet_deploy.prototxt")
         pretrained_model = os.path.join(self.model_download_path , "bvlc_alexnet.caffemodel")
         batch_size = 10
-        self._extract_features(pretrained_model, model_def , extract_from_layer , input_exp_file , batch_size)
-
-        # And now fc7
-        extract_from_layer = "fc7"
-        self._extract_features(pretrained_model, model_def , extract_from_layer , input_exp_file , batch_size)
+        self._extract_features(pretrained_model, model_def , extract_from_layer , input_exp_file , batch_size)        
 
 
-    def _features_googlenet(self , pretrained_model):
+    def _features_googlenet(self , pretrained_model, extract_from_layer):
         print("\n ----------Checking if appropriate pre trained model is downloaded and also the associated prototxt file --------")
         self.mdl_proto_downloader.download_model_and_prototxt(pretrained_model)
 
-        extract_from_layer = "pool5/7x7_s1"
+        #extract_from_layer = "pool5/7x7_s1"
         input_exp_file = "images.txt"
         model_def = os.path.join(self.model_download_path , "bvlc_googlenet_deploy.prototxt")
         pretrained_model = os.path.join(self.model_download_path , "bvlc_googlenet.caffemodel")
@@ -61,27 +70,23 @@ class FeatureExtraction(object):
         self._extract_features(pretrained_model, model_def , extract_from_layer , input_exp_file , batch_size)
 
 
-    def _features_reference_caffenet(self , pretrained_model):
+    def _features_reference_caffenet(self , pretrained_model , extract_from_layer):
         print("\n ----------Checking if appropriate pre trained model is downloaded and also the associated prototxt file --------")
         self.mdl_proto_downloader.download_model_and_prototxt(pretrained_model)
 
-        extract_from_layer = "fc8"
+        #extract_from_layer = "fc8"
         input_exp_file = "images.txt"
         model_def = os.path.join(self.model_download_path , "bvlc_reference_caffenet_deploy.prototxt")
         pretrained_model = os.path.join(self.model_download_path , "bvlc_reference_caffenet.caffemodel")
         batch_size = 10
         self._extract_features(pretrained_model, model_def , extract_from_layer , input_exp_file , batch_size)
 
-        # And now fc7
-        extract_from_layer = "fc7"
-        self._extract_features(pretrained_model, model_def , extract_from_layer , input_exp_file , batch_size)
 
-
-    def _features_finetune_flickr_style(self , pretrained_model):
+    def _features_finetune_flickr_style(self , pretrained_model , extract_from_layer):
         print("\n ----------Checking if appropriate pre trained model is downloaded and also the associated prototxt file --------")
         self.mdl_proto_downloader.download_model_and_prototxt(pretrained_model)
 
-        extract_from_layer = "fc8_flickr"
+        #extract_from_layer = "fc8_flickr"
         input_exp_file = "images.txt"
         model_def = os.path.join(self.model_download_path , "finetune_flickr_style_deploy.prototxt")
         pretrained_model = os.path.join(self.model_download_path , "finetune_flickr_style.caffemodel")
@@ -89,8 +94,8 @@ class FeatureExtraction(object):
         self._extract_features(pretrained_model, model_def , extract_from_layer , input_exp_file , batch_size)
 
         # And now fc7
-        extract_from_layer = "fc7"
-        self._extract_features(pretrained_model, model_def , extract_from_layer , input_exp_file , batch_size)
+        #extract_from_layer = "fc7"
+        #self._extract_features(pretrained_model, model_def , extract_from_layer , input_exp_file , batch_size)
 
 
 
@@ -170,10 +175,11 @@ class FeatureExtraction(object):
     def _save_features_to_file(self , features , associated_filenames , modelname , layername):    
         for index , value in enumerate(features):
             #cwd = os.getcwd()   
-            cwd = os.path.normpath(os.getcwd() + os.sep + os.pardir)   # one step back from getcwd()  
+            #cwd = os.path.normpath(os.getcwd() + os.sep + os.pardir)   # one step back from getcwd()  
             # Note we need to work on what model and what layers to save. The following line is subject to change.
             # Here we create correct folder structure to save feature vector
             # Also strip out the "models" folder from the modelname
+            cwd = self.main_dir
             modelname = os.path.basename(modelname)
 
             #replace / if present in layername by dash (-)
