@@ -10,7 +10,7 @@ class Feedback(Base):
     id = db.Column(db.Integer, primary_key=True)
     query = db.Column(db.String(64), unique=True)
     feature_vector = db.Column(db.String(255))
-
+    feedback = db.relationship('Image', backref='feedback')
     def __str__(self):
         return self.query
 
@@ -20,7 +20,6 @@ class Image(Base):
     id = db.Column(db.Integer, primary_key=True)
     image_url = db.Column(db.String(128))
     feedback_id = db.Column(db.Integer, db.ForeignKey('feedbacks.id'))
-    feedback = db.relationship('Feedback', backref='feedback')
 
     def __str__(self):
         return self.image_url
@@ -41,7 +40,7 @@ class NeuralLayer(Base):
     name = db.Column(db.String(30))
     extracted = db.Column(db.Boolean, default=False)
     neural_network_id = db.Column(db.Integer, db.ForeignKey('neuralmodels.id'))
-
+    neural_layers = db.relationship('MachineLearningAlgorithm', backref='neural_layers')
 
     def __str__(self):
         return self.name
@@ -51,6 +50,7 @@ class MachineLearningAlgorithm(Base):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30))
     prepared = db.Column(db.Boolean, default=False)
+    neural_layers_id = db.Column(db.Integer, db.ForeignKey('neurallayer.id'))
 
     def __str__(self):
         return self.name
