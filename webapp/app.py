@@ -3,7 +3,7 @@
 # 1. Extract feature (unique class jasma yo method huncha)
 # 2. Extract method ma model type ()
 
-
+import pdb
 import json
 from datetime import datetime
 import os
@@ -19,7 +19,7 @@ from flask_migrate import Migrate, MigrateCommand
 
 import config
 from database.models.models import db
-from database.models.models import Feedback, Image, Base, NeuralLayer
+from database.models.models import Feedback, Image, Base, NeuralLayer, NeuralNetworkModel
 from sqlalchemy import event, DDL
 
 # import for knn machine learning implementation
@@ -61,6 +61,13 @@ db.init_app(app)
 # Database fill up initially with default data.
 from database.database import Database
 
+# default query object
+query_object = {
+    'model': 'some model',
+    'layer': 'some layer',
+    'algo': 'some algo'
+}
+
 @app.before_first_request
 def setup():
     # Recreate database each time for demo..
@@ -75,9 +82,18 @@ def setup():
 
 @app.context_processor
 def inject_now():
+    def capitalize(word):
+        words = word.split('_')
+        words = map(lambda w: w.capitalize(), words)
+        return " ".join(words)
 
-    return {'now': datetime.utcnow()}
-
+    available_models = dict()
+    models_names = []
+    all_neural_models = db.session.query(NeuralNetworkModel).all()
+    for model in all_neural_models:
+        models_names.append(model.name)
+        available_models[model.name] = [{'name': x.name, 'extracted': x.extracted } for x in model.neural_network]
+    return {'now': datetime.utcnow(), 'available_models': json.dumps(available_models), 'models_names': models_names, 'capitalize': capitalize }
 
 @app.route('/<path:filename>', methods=['get', ])
 def image(filename):
@@ -96,6 +112,7 @@ def index():
 @app.route('/search', methods=['POST', ])
 def search():
     search_query = request.form.get('search')
+    ml_settings = request.form.get('ml_settings')
 
     # condition 1
     # when query is totally new
@@ -204,9 +221,9 @@ def extract():
 def page_not_found(e):
     return render_template('pages/404.html'), 404
 
-
 if __name__ == '__main__':
     migrate = Migrate(app, db)
     manager = Manager(app)
     manager.add_command('db', MigrateCommand)
     manager.run()
+    # app.run(debug = True)

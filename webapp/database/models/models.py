@@ -40,7 +40,7 @@ class NeuralLayer(Base):
     name = db.Column(db.String(30))
     extracted = db.Column(db.Boolean, default=False)
     neural_network_id = db.Column(db.Integer, db.ForeignKey('neuralmodels.id'))
-    neural_layers = db.relationship('MachineLearningAlgorithm', backref='neural_layers')
+    mlalgorithms = db.relationship('MachineLearningAlgorithm', backref='mlalgorithms')
 
     def __str__(self):
         return self.name
@@ -50,7 +50,7 @@ class MachineLearningAlgorithm(Base):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30))
     prepared = db.Column(db.Boolean, default=False)
-    neural_layers_id = db.Column(db.Integer, db.ForeignKey('neurallayer.id'))
+    mlalgorithms_id = db.Column(db.Integer, db.ForeignKey('neurallayer.id'))
 
     def __str__(self):
         return self.name

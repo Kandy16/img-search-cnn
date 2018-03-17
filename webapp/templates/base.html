@@ -11,6 +11,9 @@
 </head>
 <body id='page-top'>
   {% include 'nav.html' %}
+  
+  {% block model_setup %}
+  {% endblock %}
   <div class="container main-container">
     {% block content %}
 
@@ -20,5 +23,3 @@
 <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
 </body>
 </html>
-
-
