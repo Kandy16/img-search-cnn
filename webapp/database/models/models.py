@@ -1,10 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.declarative import declarative_base
 
 
 db = SQLAlchemy()
+Base = declarative_base()
 
-
-class Feedback(db.Model):
+class Feedback(Base):
     __tablename__ = 'feedbacks'
     id = db.Column(db.Integer, primary_key=True)
     query = db.Column(db.String(64), unique=True)
@@ -14,7 +15,7 @@ class Feedback(db.Model):
         return self.query
 
 
-class Image(db.Model):
+class Image(Base):
     __tablename__ = 'images'
     id = db.Column(db.Integer, primary_key=True)
     image_url = db.Column(db.String(128))
@@ -24,22 +25,32 @@ class Image(db.Model):
     def __str__(self):
         return self.image_url
 
-class NeuralNetworkModel(db.Model):
+class NeuralNetworkModel(Base):
     __tablename__ = 'neuralmodels'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
+    value = db.Column(db.String(50))
+    neural_network = db.relationship('NeuralLayer', backref='neural_network')
 
     def __str__(self):
         return self.name
 
-class NeuralLayer(db.Model):
+class NeuralLayer(Base):
     __tablename__ = 'neurallayer'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30))
     extracted = db.Column(db.Boolean, default=False)
     neural_network_id = db.Column(db.Integer, db.ForeignKey('neuralmodels.id'))
-    neural_network = db.relationship('NeuralNetworkModel', backref='neural_network')
+
 
     def __str__(self):
         return self.name
 
+class MachineLearningAlgorithm(Base):
+    __tablename__ = 'mlalgorithm'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30))
+    prepared = db.Column(db.Boolean, default=False)
+
+    def __str__(self):
+        return self.name
