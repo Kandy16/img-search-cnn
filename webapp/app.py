@@ -217,10 +217,10 @@ def settings():
 
 @app.route('/extract', methods=['post', ])
 def extract():
-    message = 'Sucessfully extracted model'
+    
 
     # Here as a post we expect a dictionary
-    extract_info = {model_name:EnumModels.Models.bvlc_alexnet.name , model_layer:"fc8"}
+    extract_info = {"model_name":EnumModels.Models.bvlc_alexnet.name , "model_layer":"fc8"}
     # 
     # Random images in search - check if normal or clustered random images.
 
@@ -230,16 +230,18 @@ def extract():
     #                                    prepare data for cosine i.e. nearest neighbours for all image vectors.
     #                                       
 
-    obj_fe = feature_extraction.FeatureExtraction(config.FEATURE_EXTRACTION_MODELS_DOWNLOAD_PATH , config.TEST_CAFEE_IMAGES_PATH , config.BASE_DIR)
-    obj_fe.extract_features(EnumModels.Models.bvlc_alexnet.name , model_layer)
+    obj_fe = feature_extraction.FeatureExtraction(config.FEATURE_EXTRACTION_MODELS_DOWNLOAD_PATH , config.TEST_CAFEE_IMAGES_PATH , config.BASE_DIR) # Test config to real images file
+
+    obj_fe.extract_features(extract_info["model_name"] , extract_info["model_layer"])
 
     # Prepare data for cosine similarity for given feature vectors as per model and layer provided
-    obj_cosine.nearest_neighbours_for_each_imagevector(config.COSINE_IMG_VECTORS_FILEPATH , config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , model_name , model_layer)
+    obj_cosine.nearest_neighbours_for_each_imagevector(config.COSINE_IMG_VECTORS_FILEPATH , config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , extract_info["model_name"] , extract_info["model_layer"])
 
     # Prepare data for KNN. vectors.p for given model and layer
-    obj_knn.prepare_data_for_KNN(config.KNN_IMG_VECTORS_FILEPATH , config.KNN_DATASET_PATH  , model_name , model_layer)
+    obj_knn.prepare_data_for_KNN(config.KNN_IMG_VECTORS_FILEPATH , config.KNN_DATA_SAVE_PATH  , extract_info["model_name"] , extract_info["model_layer"])
 
-    return render_template('pages/settings.html', message=message)
+    message = 'Sucessfully extracted model' + extract_info["model_name"] + extract_info["model_layer"]
+    return render_template('pages/settings.html', app_settings=app_settings , message=message)
 
 
 @app.errorhandler(404)
