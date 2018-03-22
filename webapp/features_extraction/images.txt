@@ -1,8 +1,8 @@
-C:\Users\Sabs\Desktop\img-search-cnn\webapp\dataset\images_TRY\000000.jpg
-C:\Users\Sabs\Desktop\img-search-cnn\webapp\dataset\images_TRY\000001.jpg
-C:\Users\Sabs\Desktop\img-search-cnn\webapp\dataset\images_TRY\000003.jpg
-C:\Users\Sabs\Desktop\img-search-cnn\webapp\dataset\images_TRY\000004.jpg
-C:\Users\Sabs\Desktop\img-search-cnn\webapp\dataset\images_TRY\000005.jpg
-C:\Users\Sabs\Desktop\img-search-cnn\webapp\dataset\images_TRY\000006.jpg
-C:\Users\Sabs\Desktop\img-search-cnn\webapp\dataset\images_TRY\000007.jpg
-C:\Users\Sabs\Desktop\img-search-cnn\webapp\dataset\images_TRY\000008.jpg
+/var/www//img-search-cnn/webapp/dataset/images_TRY/000000.jpg
+/var/www//img-search-cnn/webapp/dataset/images_TRY/000006.jpg
+/var/www//img-search-cnn/webapp/dataset/images_TRY/000007.jpg
+/var/www//img-search-cnn/webapp/dataset/images_TRY/000005.jpg
+/var/www//img-search-cnn/webapp/dataset/images_TRY/000001.jpg
+/var/www//img-search-cnn/webapp/dataset/images_TRY/000004.jpg
+/var/www//img-search-cnn/webapp/dataset/images_TRY/000003.jpg
+/var/www//img-search-cnn/webapp/dataset/images_TRY/000008.jpg

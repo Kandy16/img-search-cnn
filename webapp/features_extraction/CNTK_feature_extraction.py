@@ -1,10 +1,10 @@
 import os,sys
 import numpy as np
-#import cntk as C
-#from cntk import load_model, combine
-#import cntk.io.transforms as xforms
-#from cntk.logging import graph
-#from cntk.logging.graph import get_node_outputs
+import cntk as C
+from cntk import load_model, combine
+import cntk.io.transforms as xforms
+from cntk.logging import graph
+from cntk.logging.graph import get_node_outputs
 import shutil    
 import csv
 import pathlib2
@@ -86,7 +86,7 @@ class CNTKFeatureExtraction(object):
             return os.path.join(images_txt_save_path , "cnn_images.txt")
         else:
             print("No Folder exist of name \"" +  image_path + "\" Please create and put images into it")
-            return None
+            exit(0)
 
     def extract_feature(self, model_download_path , images_path, main_dir, pretrained_model , extract_from_layer):        
         model_file = self._download_model("ResNet18_ImageNet_CNTK.model", "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet18_ImageNet_CNTK.model" , model_download_path)
@@ -118,7 +118,7 @@ class CNTKFeatureExtraction(object):
 
 if __name__ == "__main__":
     main_dir = "C:\\Users\\Sabs\\Desktop\\img-search-cnn\webapp\\"
-    #obj = CNTKFeatureExtraction()
+    obj = CNTKFeatureExtraction()
     
-    #obj.extract_feature( "C:\\Users\\Sabs\\Desktop\\img-search-cnn\webapp\\feature_extraction\\models\\", "D:\\Deep Learning DATA\\DLImages\\images_TRY\\" ,main_dir , "" , "z" )
+    obj.extract_feature( "C:\\Users\\Sabs\\Desktop\\img-search-cnn\webapp\\feature_extraction\\models\\", "D:\\Deep Learning DATA\\DLImages\\images_TRY\\" ,main_dir , "" , "z" )
 

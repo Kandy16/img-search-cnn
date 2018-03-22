@@ -3,9 +3,8 @@ import os.path
 from model_and_prototxt_downloader import ModelAndPrototxtDownloader
 from EnumModels import Models
 import image_list_creator
-from CNTK_feature_extraction import CNTKFeatureExtraction
 import pickle
-#import caffe
+import caffe
 import numpy as np
 import pathlib2
 np.set_printoptions(threshold='nan')
@@ -31,7 +30,7 @@ class FeatureExtraction(object):
 
         #replace / if present in layername by dash (-)
         smoothed_layer_name = extract_from_layer.replace("/" , "-")
-        filename = os.path.join(self.main_dir, "dataset", "features_etd1a" ,  pretrained_model + ".caffemodel", smoothed_layer_name)
+        filename = os.path.join(self.main_dir, "dataset", "features_etd1a" ,  pretrained_model, smoothed_layer_name)
         if not os.path.exists(filename):
             takeaction = {
                 Models.bvlc_alexnet.name : self._features_alexnet,
@@ -47,6 +46,7 @@ class FeatureExtraction(object):
 
     def _features_resnet18_imagenet_cntk_model(self , pretrained_model , extract_from_layer):
         #main_dir = "C:\\Users\\Sabs\\Desktop\\img-search-cnn\webapp\\"
+        from CNTK_feature_extraction import CNTKFeatureExtraction # Was taking so long to process from app
         main_dir = self.main_dir
         obj = CNTKFeatureExtraction()
         obj.extract_feature(self.model_download_path , self.images_path, main_dir, pretrained_model , extract_from_layer)
@@ -178,7 +178,9 @@ class FeatureExtraction(object):
 
 
 
-    def _save_features_to_file(self , features , associated_filenames , modelname , layername):    
+    def _save_features_to_file(self , features , associated_filenames , modelname , layername):   
+        modelname =  os.path.splitext(modelname)[0]
+        print("SHOULDDDDDDDDDDD CHANGE TO without CAFFEEE NET" , modelname)
         for index , value in enumerate(features):
             #cwd = os.getcwd()   
             #cwd = os.path.normpath(os.getcwd() + os.sep + os.pardir)   # one step back from getcwd()  
