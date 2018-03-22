@@ -1,11 +1,10 @@
 import os,sys
 import numpy as np
-import cntk as C
-from cntk import load_model, combine
-import cntk.io.transforms as xforms
-from cntk.logging import graph
-from cntk.logging.graph import get_node_outputs
-import zipfile
+#import cntk as C
+#from cntk import load_model, combine
+#import cntk.io.transforms as xforms
+#from cntk.logging import graph
+#from cntk.logging.graph import get_node_outputs
 import shutil    
 import csv
 import pathlib2
@@ -119,6 +118,7 @@ class CNTKFeatureExtraction(object):
 
 if __name__ == "__main__":
     main_dir = "C:\\Users\\Sabs\\Desktop\\img-search-cnn\webapp\\"
-    obj = CNTKFeatureExtraction()
-    obj.extract_feature( "C:\\Users\\Sabs\\Desktop\\img-search-cnn\webapp\\feature_extraction\\models\\", "D:\\Deep Learning DATA\\DLImages\\images_TRY\\" ,main_dir , "" , "z" )
+    #obj = CNTKFeatureExtraction()
+    
+    #obj.extract_feature( "C:\\Users\\Sabs\\Desktop\\img-search-cnn\webapp\\feature_extraction\\models\\", "D:\\Deep Learning DATA\\DLImages\\images_TRY\\" ,main_dir , "" , "z" )
 
