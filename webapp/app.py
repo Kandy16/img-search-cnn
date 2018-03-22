@@ -22,12 +22,6 @@ from database.models.models import db
 from database.models.models import Feedback, Image, Base, NeuralLayer, NeuralNetworkModel
 from sqlalchemy import event, DDL
 
-# import for knn machine learning implementation
-from ml.knn import knn
-
-# import for cosine similarity
-from ml.cosine import cosine_similarity_cluster as cs
-
 app_settings = {
     'algorithms': ['KNN', 'Cosine Similarity'],
     'current': 'KNN',
@@ -45,9 +39,6 @@ parent_path = "/".join(basedir.split('/')[:-1])  #IS it used? //TODO
 # handling image directory
 img_dir = config.CAFEE_IMAGES_PATH
 
-# object of knnclassifier used for search and feedback
-obj_knn = knn.KNN()
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'weareLearningDeepLearxingokjalsf2oue'
 
@@ -60,6 +51,18 @@ db.init_app(app)
 
 # Database fill up initially with default data.
 from database.database import Database
+
+# imports for feature extraction
+from feature_extraction import feature_extraction
+from feature_extraction import EnumModels
+
+# import for knn machine learning implementation
+from ml.knn import knn
+obj_knn = knn.KNN() # object of KNN used for search(random images), extract , feedback
+
+# import for cosine similarity
+from ml.cosine import cosine_similarity_cluster as cs
+obj_cosine = cs.CosineSimilarityCluster() # object of KNN used for extract , feedback
 
 # default query object
 query_object = {
@@ -140,11 +143,10 @@ def feedback():
     query = feedback_dict['query']
     images = feedback_dict['images']
 
-
-    obj = cs.CosineSimilarityCluster()
-    #obj.nearest_neighbours_for_each_imagevector()
     # using filenames from neighbours json file test
-    rand_images = obj.get_feedback("/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/cosine/cosine_nearest_neighbors/fc8/" , images)
+    calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , "" , "fc8")
+    rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , images)
+
     #rand_images = ['000001.jpg']
 
     search_query = "cat"
@@ -214,6 +216,27 @@ def settings():
 @app.route('/extract', methods=['post', ])
 def extract():
     message = 'Sucessfully extracted model'
+
+    # Here as a post we expect a dictionary
+    extract_info = {model_name:EnumModels.Models.bvlc_alexnet.name , model_layer:"fc8"}
+    # 
+    # Random images in search - check if normal or clustered random images.
+
+    # Step 1 First we need to extract features depending on the given model and layer - internally it downloads model and prototxt, creates images.txt.
+    # Step 2 after extraction we need to prepare data for getting random images i.e. clustering 
+    #                                    prepare data for KNN i.e. vectors.p file. 
+    #                                    prepare data for cosine i.e. nearest neighbours for all image vectors.
+    #                                       
+
+    obj_fe = feature_extraction.FeatureExtraction(config.FEATURE_EXTRACTION_MODELS_DOWNLOAD_PATH , config.TEST_CAFEE_IMAGES_PATH , config.BASE_DIR)
+    obj_fe.extract_features(EnumModels.Models.bvlc_alexnet.name , model_layer)
+
+    # Prepare data for cosine similarity for given feature vectors as per model and layer provided
+    obj_cosine.nearest_neighbours_for_each_imagevector(config.COSINE_IMG_VECTORS_FILEPATH , config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , model_name , model_layer)
+
+    # Prepare data for KNN. vectors.p for given model and layer
+    obj_knn.prepare_data_for_KNN(config.KNN_IMG_VECTORS_FILEPATH , config.KNN_DATASET_PATH  , model_name , model_layer)
+
     return render_template('pages/settings.html', message=message)
 
 
