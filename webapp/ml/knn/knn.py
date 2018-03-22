@@ -47,18 +47,22 @@ class KNN(object):
         return numpy.fromstring(data, dtype=float, sep='\n')
 
 
-    def prepare_data_for_KNN(self , image_vector_path , save_location):
+    def prepare_data_for_KNN(self , image_vector_path , save_location , modelname , layername):
         # TODO  check if the feature_ oath is set to not NONE
         # TODO # Do we build up the vectors.p for all our models  here?
 
         vectors = {}
         # this will build the numpy array for every feature vector and store it in a pickle file, you need to activate this on your first run
-        filename = os.path.join(save_location , "vectors.p")
+        filename = os.path.join(save_location ,modelname,layername, "vectors.p")
+        image_vector_path = os.path.join(image_vector_path , modelname , layername)
         if not os.path.exists(filename):
+            m=0;
             for filename_vector in os.listdir(image_vector_path):
-                vectors[filename_vector] = self._buildNumpyArrayForFeaturesByFileName(image_vector_path + filename_vector)	
+                m = m + 1
+                print(m)
+                vectors[filename_vector] = self._buildNumpyArrayForFeaturesByFileName(os.path.join(image_vector_path, filename_vector))	
 
-            pathlib2.Path(save_location).mkdir(parents=True, exist_ok=True)	
+            pathlib2.Path(os.path.join(save_location, modelname , layername)).mkdir(parents=True, exist_ok=True)	
             pickle.dump(vectors, open(filename, "wb"))
             print('Saved vectors.p at ' + filename)
         else:
