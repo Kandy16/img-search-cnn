@@ -1,5 +1,9 @@
-from feature_extraction import feature_extraction
-from feature_extraction import EnumModels
+import sys
+import os.path
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'features_extraction')) # BUT WHYYYYYYYYYYYYYYY
+from features_extraction import feature_extraction
+from features_extraction import EnumModels
 import config
 
 
@@ -12,7 +16,8 @@ obj_fe = feature_extraction.FeatureExtraction(config.FEATURE_EXTRACTION_MODELS_D
 #           But if it doesnot exist it will create a folder models and download necessary files
 
 
-obj_fe.extract_features(EnumModels.Models.bvlc_alexnet.name , "fc8")
+#obj_fe.extract_features(EnumModels.Models.bvlc_alexnet.name , "fc8")
+obj_fe.extract_features(EnumModels.Models.ResNet18_ImageNet_CNTK_model.name , "z")
 #obj_fe.extract_features(EnumModels.Models.bvlc_googlenet.name)
 #obj_fe.extract_features(EnumModels.Models.bvlc_reference_caffenet.name)
 #etobj_fe.extract_features(EnumModels.Models.finetune_flickr_style.name)
