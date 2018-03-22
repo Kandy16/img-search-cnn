@@ -4,7 +4,7 @@ BASE_DIR = os.path.dirname(__file__) # Till /webapp
 
 CAFEE_IMAGES_PATH = os.path.join(BASE_DIR, "dataset" ,"images") #os.path.join(BASE_DIR, 'dataset/images/')
 
-
+FEEDBACK_DIR = os.path.join(BASE_DIR, "dataset" ,"feedbacks")
 ## -- BEGIN CONFIGURATION FOR FEATURE EXTRACTION AND DATA PREPARATION -- 
 
 # For feature Extraction

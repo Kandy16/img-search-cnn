@@ -1,5 +1,5 @@
 from .models.models import NeuralNetworkModel , MachineLearningAlgorithm, NeuralLayer
-from feature_extraction.EnumModels import Models
+from features_extraction.EnumModels import Models
 
 class Database(object):
 	def __init__(self):

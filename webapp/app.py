@@ -7,7 +7,8 @@ import pdb
 import json
 from datetime import datetime
 import os
-
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), 'features_extraction')) # BUT WHYYYYYYYYYYYYYYY ASKKKKKKKKKKKKKKKKKKKKKKK
 from PIL import Image
 from flask import Response, abort
 from flask import Flask
@@ -21,7 +22,7 @@ import config
 from database.models.models import db
 from database.models.models import Feedback, Image, Base, NeuralLayer, NeuralNetworkModel
 from sqlalchemy import event, DDL
-import caffe
+#import caffe
 
 app_settings = {
     'algorithms': ['KNN', 'Cosine Similarity'],
@@ -54,8 +55,8 @@ db.init_app(app)
 from database.database import Database
 
 # imports for feature extraction
-from feature_extraction import feature_extraction
-from feature_extraction import EnumModels
+from features_extraction import feature_extraction
+from features_extraction import EnumModels
 
 # import for knn machine learning implementation
 from ml.knn import knn
@@ -97,7 +98,7 @@ def inject_now():
     for model in all_neural_models:
         models_names.append(model.name)
         available_models[model.name] = [{'name': x.name, 'extracted': x.extracted } for x in model.neural_network]
-    return {'now': datetime.utcnow(), 'available_models': json.dumps(available_models), 'models_names': models_names, 'capitalize': capitalize, 'caffe_version': caffe.__version__}
+    return {'now': datetime.utcnow(), 'available_models': json.dumps(available_models), 'models_names': models_names, 'capitalize': capitalize, 'caffe_version': ""}#caffe.__version__}
 
 @app.route('/<path:filename>', methods=['get', ])
 def image(filename):
