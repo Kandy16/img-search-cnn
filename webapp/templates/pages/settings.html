@@ -13,10 +13,10 @@
             {{message}}
             {{allrow}}
         </div>
-              
+
     <script>
     var available_models = JSON.parse({{available_models|tojson|safe}});
-    $(function() {      
+    $(function() {
       var neural_layer = $('#neural_layer');
       var model_selection = $('#model-selection');
       var algo_selection = $('#mlalgorithm')
@@ -25,6 +25,7 @@
       var default_button_container = $("#default-button-container");
       var make_default_btn = $("#make_default_btn");
       var extract_btn =  $("#extract_btn");
+      var extract_form = $("#extract_form");
 
       function hideall() {
         mlalgo_container.css({'display': 'none'});
@@ -84,7 +85,7 @@
           mlalgo_container.css({'display': 'block'})
           setting_container.css({'display': 'none'})
         } else {
-          setting_container.css({'display': 'block'})          
+          setting_container.css({'display': 'block'})
           mlalgo_container.css({'display': 'none'})
         }
       });
@@ -108,7 +109,7 @@
            'algo': algo_selection.val() == 'Select Algo' ? 'knn' : algo_selection.val()
         }
         document.getElementById('ml_settings').value = JSON.stringify({model:5 , layer:6})
-        settings_form.submit();
+        extract_form.submit();
       })
 
     });
