@@ -218,21 +218,19 @@ def settings():
 
 @app.route('/extract', methods=['post', ])
 def extract():
-	try:
-		feedback_raw = request.form.to_dict()
-		feedback_dict = json.loads(feedback_raw["extract_settings"])
-	except:
-		abort(404)
-
-	query = feedback_dict['model']
-	images = feedback_dict['layer']
+    try:
+        feedback_raw = request.form.to_dict()
+        feedback_dict = json.loads(feedback_raw["extract_settings"])
+    except:
+        abort(404)
+    query = feedback_dict['model']
+    images = feedback_dict['layer']
 
     # Here as a post we expect a dictionary
     #For alexnet
     #extract_info = {"model_name":EnumModels.Models.bvlc_alexnet.name , "model_layer":"fc8"}
 
-    #For bvlc_googlenet
-	extract_info = {"model_name":EnumModels.Models.bvlc_reference_caffenet.name , "model_layer":"fc8"}
+    #For bvlc_googlenetextract_info = {"model_name":EnumModels.Models.bvlc_reference_caffenet.name , "model_layer":"fc8"}
     # 
     # Random images in search - check if normal or clustered random images.
 
@@ -252,8 +250,10 @@ def extract():
     # Prepare data for KNN. vectors.p for given model and layer
     #obj_knn.prepare_data_for_KNN(config.KNN_IMG_VECTORS_FILEPATH , config.KNN_DATA_SAVE_PATH  , extract_info["model_name"] , extract_info["model_layer"])
 
-	message = 'Sucessfully extracted model' + extract_info["model_name"] + extract_info["model_layer"]
-	return render_template('pages/settings.html', app_settings=app_settings , message=message)
+    #message = 'Sucessfully extracted model' + extract_info["model_name"] + extract_info["model_layer"]
+
+    message = query + images
+    return render_template('pages/settings.html', app_settings=app_settings , message=message)
 
 
 @app.errorhandler(404)
