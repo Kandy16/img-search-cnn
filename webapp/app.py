@@ -22,7 +22,7 @@ import config
 from database.models.models import db
 from database.models.models import Feedback, Image, Base, NeuralLayer, NeuralNetworkModel
 from sqlalchemy import event, DDL
-#import caffe
+import caffe
 
 app_settings = {
     'algorithms': ['KNN', 'Cosine Similarity'],
@@ -98,7 +98,7 @@ def inject_now():
     for model in all_neural_models:
         models_names.append(model.name)
         available_models[model.name] = [{'name': x.name, 'extracted': x.extracted } for x in model.neural_network]
-    return {'now': datetime.utcnow(), 'available_models': json.dumps(available_models), 'models_names': models_names, 'capitalize': capitalize, 'caffe_version': ""}#caffe.__version__}
+    return {'now': datetime.utcnow(), 'available_models': json.dumps(available_models), 'models_names': models_names, 'capitalize': capitalize, 'caffe_version': caffe.__version__}
 
 @app.route('/<path:filename>', methods=['get', ])
 def image(filename):
@@ -146,7 +146,7 @@ def feedback():
     images = feedback_dict['images']
 
     # using filenames from neighbours json file test
-    calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , "" , "fc8")
+    calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , "bvlc_reference_caffenet" , "fc8")
     rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , images)
 
     #rand_images = ['000001.jpg']
@@ -193,16 +193,17 @@ def feedback():
 @app.route('/settings', methods=['post', 'get'])
 def settings():
     # Have to check if the folders exist and accordingly we have to update database of neural layer i.e. extracted status to true.
-    allrow = []
+    allrow = "normal"
     if request.method == 'POST':
         app_settings['current'] = 'Cosine'
+        allrow = "Clicked the default button"
     else:
         load_all_rows = db.session.query(NeuralLayer).all()
         for row in load_all_rows:
             extract_from_layer = row.name
             pretrained_model = row.neural_network.name
             smoothed_layer_name = extract_from_layer.replace("/" , "-")
-            filename = os.path.join(config.BASE_DIR, "dataset", "features_etd1a" ,  pretrained_model + ".caffemodel", smoothed_layer_name)
+            filename = os.path.join(config.BASE_DIR, "dataset", "features_etd1a" ,  pretrained_model, smoothed_layer_name)
             if os.path.exists(filename):
                 # This is where we start updating database extracted boolean in neural layer.
                 target_row = db.session.query(NeuralLayer).filter_by(id = row.id).first()
@@ -212,15 +213,26 @@ def settings():
                 target_row = db.session.query(NeuralLayer).filter_by(id = row.id).first()
                 target_row.extracted = False
                 db.session.commit()
-    return render_template('pages/settings.html', app_settings=app_settings , allrow = allrow)
+    return render_template('pages/settings.html', app_settings=app_settings , allrow = allrow )
 
 
 @app.route('/extract', methods=['post', ])
 def extract():
-    
+	try:
+		feedback_raw = request.form.to_dict()
+		feedback_dict = json.loads(feedback_raw["extract_settings"])
+	except:
+		abort(404)
+
+	query = feedback_dict['model']
+	images = feedback_dict['layer']
 
     # Here as a post we expect a dictionary
-    extract_info = {"model_name":EnumModels.Models.bvlc_alexnet.name , "model_layer":"fc8"}
+    #For alexnet
+    #extract_info = {"model_name":EnumModels.Models.bvlc_alexnet.name , "model_layer":"fc8"}
+
+    #For bvlc_googlenet
+	extract_info = {"model_name":EnumModels.Models.bvlc_reference_caffenet.name , "model_layer":"fc8"}
     # 
     # Random images in search - check if normal or clustered random images.
 
@@ -230,18 +242,18 @@ def extract():
     #                                    prepare data for cosine i.e. nearest neighbours for all image vectors.
     #                                       
 
-    obj_fe = feature_extraction.FeatureExtraction(config.FEATURE_EXTRACTION_MODELS_DOWNLOAD_PATH , config.TEST_CAFEE_IMAGES_PATH , config.BASE_DIR) # Test config to real images file
+    #obj_fe = feature_extraction.FeatureExtraction(config.FEATURE_EXTRACTION_MODELS_DOWNLOAD_PATH , config.TEST_CAFEE_IMAGES_PATH , config.BASE_DIR) # Test config to real images file
 
-    obj_fe.extract_features(extract_info["model_name"] , extract_info["model_layer"])
+    #obj_fe.extract_features(extract_info["model_name"] , extract_info["model_layer"])
 
     # Prepare data for cosine similarity for given feature vectors as per model and layer provided
-    obj_cosine.nearest_neighbours_for_each_imagevector(config.COSINE_IMG_VECTORS_FILEPATH , config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , extract_info["model_name"] , extract_info["model_layer"])
+    #obj_cosine.nearest_neighbours_for_each_imagevector(config.COSINE_IMG_VECTORS_FILEPATH , config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , extract_info["model_name"] , extract_info["model_layer"])
 
     # Prepare data for KNN. vectors.p for given model and layer
-    obj_knn.prepare_data_for_KNN(config.KNN_IMG_VECTORS_FILEPATH , config.KNN_DATA_SAVE_PATH  , extract_info["model_name"] , extract_info["model_layer"])
+    #obj_knn.prepare_data_for_KNN(config.KNN_IMG_VECTORS_FILEPATH , config.KNN_DATA_SAVE_PATH  , extract_info["model_name"] , extract_info["model_layer"])
 
-    message = 'Sucessfully extracted model' + extract_info["model_name"] + extract_info["model_layer"]
-    return render_template('pages/settings.html', app_settings=app_settings , message=message)
+	message = 'Sucessfully extracted model' + extract_info["model_name"] + extract_info["model_layer"]
+	return render_template('pages/settings.html', app_settings=app_settings , message=message)
 
 
 @app.errorhandler(404)

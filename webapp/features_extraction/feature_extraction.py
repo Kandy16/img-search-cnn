@@ -45,11 +45,11 @@ class FeatureExtraction(object):
             print('\n' + 'Features already extracted at ' + filename)
 
     def _features_resnet18_imagenet_cntk_model(self , pretrained_model , extract_from_layer):
-        #main_dir = "C:\\Users\\Sabs\\Desktop\\img-search-cnn\webapp\\"
-        from CNTK_feature_extraction import CNTKFeatureExtraction # Was taking so long to process from app
-        main_dir = self.main_dir
-        obj = CNTKFeatureExtraction()
-        obj.extract_feature(self.model_download_path , self.images_path, main_dir, pretrained_model , extract_from_layer)
+        main_dir = "C:\\Users\\Sabs\\Desktop\\img-search-cnn\webapp\\"
+        #from CNTK_feature_extraction import CNTKFeatureExtraction # Was taking so long to process from app
+        #main_dir = self.main_dir
+        #obj = CNTKFeatureExtraction()
+        #obj.extract_feature(self.model_download_path , self.images_path, main_dir, pretrained_model , extract_from_layer)
         #obj.extract_feature( "C:\\Users\\Sabs\\Desktop\\img-search-cnn\webapp\\feature_extraction\\models\\", "D:\\Deep Learning DATA\\DLImages\\images_TRY\\" ,main_dir , "" , "z" )
 
 
