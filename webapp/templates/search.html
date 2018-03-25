@@ -9,5 +9,15 @@
         </span>
       </div><!-- /input-group -->
     </form>
+    <script>
+    $(function() {
+      var searchbtn = $("#searchbtn");      
+      var search_form = $("#search-form");
+      searchbtn.on('click', (evt) => {
+        evt.preventDefault();
+        search_form.submit();
+      })
+    });
+  </script>
   </div><!-- /.col-lg-6 -->
 </div><!-- /.row -->

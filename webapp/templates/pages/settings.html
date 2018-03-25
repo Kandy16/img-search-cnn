@@ -1,4 +1,7 @@
 {% extends 'base.html'%}
+{% block model_setup %}
+  {% include "models_layer_setup.html" with context %}
+{% endblock model_setup %}
 {% block content %}
     <div class="container">
         <div class="row">
@@ -7,31 +10,109 @@
           </div>
         </div>
         <div class="row">
-            {{ message }}
+            {{message}}
             {{allrow}}
         </div>
-        <form action="/settings" id='settings-form' method='post'>
-            <div class="btn-group" role="group" aria-label="...">
-                {% for algo in app_settings['algorithms'] %}
-                    {% if algo == app_settings['current'] %}
-                        <button type="button" class="btn btn-default active">{{ algo }}</button>
-                    {% else %}
-                        <button type="button" class="btn btn-default">{{ algo }}</button>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            <div class="row">
-                <input type="hidden" name='settings' id='settings'>
-                <button id='submit-btn' class='btn btn-success'>Save</button>
-            </div>
-        </form>
+
+    <script>
+    var available_models = JSON.parse({{available_models|tojson|safe}});
+    $(function() {
+      var neural_layer = $('#neural_layer');
+      var model_selection = $('#model-selection');
+      var algo_selection = $('#mlalgorithm')
+      var mlalgo_container = $("#mlalgo-container");
+      var setting_container = $("#setting-container");
+      var default_button_container = $("#default-button-container");
+      var make_default_btn = $("#make_default_btn");
+      var extract_btn =  $("#extract_btn");
+      var extract_form = $("#extract_form");
+
+      function hideall() {
+        mlalgo_container.css({'display': 'none'});
+        setting_container.css({'display': 'none'});
+      }
+
+      model_selection.on('change', (evt) => {
+        evt.preventDefault();
+        var selected_value = evt.target.value;
+        neural_layer.empty()
+        neural_layer.append($('<option>', {
+          value: 'Select Layer',
+          text: 'Select Layer'
+        }));
+
+        if (selected_value == 'Select Model') {
+          hideall()
+          return false;
+        };
+        for (let val of available_models[selected_value]) {
+          neural_layer.append($('<option>', {
+            value: val.name,
+            text: val.name
+          }));
+        }
+      });
 
 
-        <form action="/extract" id="extract-form" method="post">
-            <div class="row">
-                <input type="hidden" name='settings' id='settings'>
-                <button id='extract' class='btn btn-danger'>Extract</button>
-            </div>
-        </form>
+      algo_selection.on('change', (evt) => {
+        evt.preventDefault();
+        var selected_value = evt.target.value;
+        if (selected_value == 'Select Algo') {
+          default_button_container.css({'display': 'none'});
+          return false;
+        } else {
+          default_button_container.css({'display': 'block'});
+        }
+      });
+
+      neural_layer.on('change', (evt) => {
+        evt.preventDefault();
+        var selected_value = evt.target.value;
+        var selected_model = model_selection.val();
+
+        if (selected_value == 'Select Layer') {
+          hideall();
+          return false
+        }
+
+        var matched = available_models[selected_model].filter((obj) => {
+          if (obj.name == selected_value) return true;
+          return false
+        });
+
+        var obj = matched[0];
+        if (obj.extracted) {
+          mlalgo_container.css({'display': 'block'})
+          setting_container.css({'display': 'none'})
+        } else {
+          setting_container.css({'display': 'block'})
+          mlalgo_container.css({'display': 'none'})
+        }
+      });
+
+      extract_btn.on('click', (evt) => {
+        evt.preventDefault();
+        var output = {
+           'model': model_selection.val(),
+           'layer': neural_layer.val(),
+           'algo': algo_selection.val() == 'Select Algo' ? 'knn' : algo_selection.val()
+        }
+        document.getElementById("extract_settings").value = JSON.stringify({"model":5 , "layer":6})
+        extract_form.submit();
+      })
+
+      make_default_btn.on('click', (evt) => {
+        evt.preventDefault();
+        var output = {
+           'model': model_selection.val(),
+           'layer': neural_layer.val(),
+           'algo': algo_selection.val() == 'Select Algo' ? 'knn' : algo_selection.val()
+        }
+        document.getElementById('ml_settings').value = JSON.stringify({model:5 , layer:6})
+        extract_form.submit();
+      })
+
+    });
+  </script>
     </div>
 {% endblock %}

@@ -1,6 +1,5 @@
 <div class="formWrp">
   <div class="container">
-    <form>
       <div class="row form-wrap">
         <div class="col-md-4 deeplearning-input-group">
           <div class="input-group">
@@ -19,7 +18,21 @@
             </select>
           </div>
         </div>
-        <div class="col-md-4 deeplearning-input-group" id="mlalgo-container" style="display: none;">
+        <div class="col-md-4 deeplearning-input-group" id="setting-container" style="display: none;">
+          <div class="input-group">
+            <!-- <a href="/settings" class="btn btn-primary form-control">Go To Seeting</a> -->
+            <form action="/extract" id="extract_form" method="post">
+              <div class="row">
+                <input type="hidden" name="extract_settings" id="extract_settings">
+
+                <button id='extract_btn' class="btn btn-primary form-control">Extract</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="row form-wrap" id="mlalgo-container" style="display: none;">
+        <div class="col-md-4 deeplearning-input-group">
           <div class="input-group">
             <select id="mlalgorithm" class="dropdown form-control">
               <option value="Select Algo">Select Algo</option>
@@ -28,13 +41,16 @@
             </select>
           </div>
         </div>
-
-        <div class="col-md-4 deeplearning-input-group" id="setting-container" style="display: none;">
+        <div class="col-md-4 deeplearning-input-group" id="default-button-container" style="display: none;">
           <div class="input-group">
-            <a href="/settings" class="btn btn-primary form-control">Go To Seeting</a>
+            <form action="/settings" id='settings_form' method='post'>
+              <div class="row">
+                <input type="hidden" name='default_settings' id='default_settings'>
+                <button id='make_default_btn' class="btn btn-primary form-control">Make default</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
-    </form>
   </div>
 </div>
