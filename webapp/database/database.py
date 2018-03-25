@@ -39,6 +39,15 @@ class Database(object):
 				db.session.add(obj_ml_cos)
 				db.session.commit()
 
+			if (model.name == Models.ResNet18_ImageNet_CNTK_model.name) :
+				obj_neural_layer = NeuralLayer(name='z' , neural_network = obj_neural_model  , extracted= False)
+				db.session.add(obj_neural_layer)
+				obj_ml_knn = MachineLearningAlgorithm(name='knn' , prepared= False, mlalgorithms=obj_neural_layer)
+				obj_ml_cos = MachineLearningAlgorithm(name='cosine' , prepared= False, mlalgorithms=obj_neural_layer)
+				db.session.add(obj_ml_knn)
+				db.session.add(obj_ml_cos)
+				db.session.commit()
+
 			if (model.name == Models.finetune_flickr_style.name):
 				obj_neural_layer = NeuralLayer(name='fc7' , neural_network = obj_neural_model  , extracted= False)
 				db.session.add(obj_neural_layer)
