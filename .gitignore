@@ -10,3 +10,4 @@ webapp/dataset
 include/
 webapp/feature_extraction/*.pyc
 webapp/feature_extraction/models/
+webapp/images_eval
