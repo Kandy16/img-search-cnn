@@ -16,10 +16,11 @@
 }
 .result-img {
   cursor: pointer;
+  max-width: 100%;
 }
 
 img.active {
-  border: 1px solid green;
+  border: 7px solid green;
 }
 
 #settings-form button.active {
@@ -57,4 +58,9 @@ a.setting-link:hover, a.setting-link:focus {
 
 .deeplearning-input-group .input-group {
   width: 98%;
+}
+
+.related-images {
+    border: 7px solid #e2e2e2;
+    border-radius: 16px;
 }

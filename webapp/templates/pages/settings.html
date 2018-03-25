@@ -13,7 +13,6 @@
             {{message}}
             {{allrow}}
         </div>
-
     <script>
     var available_models = JSON.parse({{available_models|tojson|safe}});
     $(function() {
@@ -108,7 +107,8 @@
            'layer': neural_layer.val(),
            'algo': algo_selection.val() == 'Select Algo' ? 'knn' : algo_selection.val()
         }
-        document.getElementById('ml_settings').value = JSON.stringify({model:5 , layer:6})
+
+        document.getElementById('default_settings').value = JSON.stringify(output)
         extract_form.submit();
       })
 

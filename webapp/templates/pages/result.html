@@ -11,13 +11,28 @@
         </div>
         {{image_number}}
         <form action="/feedback" id='feedback-form' method='post'>
-            <div class="row">
-                {% for image in images %}
-                  <div class="col-md-4 col-sm-6 portfolio-item">
-                    <img class="img-fluid result-img" src="{{image}}" alt="{{image}}">
+                {% for imgs in  images %}
+                  <div class="row">
+                    {% for image in imgs %}
+                    <div class="col-md-4 col-sm-6 portfolio-item">
+                      <img class="img-fluid result-img" src="{{image}}" alt="{{image}}">
+                    </div>
+                    {% endfor %}
+
                   </div>
                 {% endfor %}
-            </div>
+
+                <div class="clear"></div>
+                <h3> Related Images </h3>
+                <div class="row related-images" id="related-images">
+
+                  {% for img in related_images %}
+                    <div class="col-xs-3 col-md-1 related-img-container">
+                      <img class="img-fluid result-img" src="{{img}}" alt="{{img}}">
+                    </div>
+                  {% endfor %}
+                </div>
+
             <div class="row">
                 <input type="hidden" name='feedback' id='feedback'>
                 <button id='submit-btn' class='btn btn-success'>Give Feedback</button>
@@ -28,6 +43,8 @@
       window.addEventListener('load', function(evt) {
           evt.preventDefault();
         var selectedImages = [];
+        var relatedImages = [];
+
         var button = document.getElementById('submit-btn');
 
         document.addEventListener('click', function(evt) {
@@ -36,12 +53,22 @@
             classList.toggle('active');
             var img = evt.target.alt;
             if(classList.contains('active')) {
-              if (selectedImages.indexOf(img) == -1) {
-                selectedImages.push(img)
+              if (evt.target.parentElement.classList.contains('related-img-container')) {
+                if (relatedImages.indexOf(img) == -1) {
+                  relatedImages.push(img)
+                  return
+                }
+                var index = selectedImages.indexOf(img);
+                selectedImages.splice(index,1)
+              } else {
+                if (selectedImages.indexOf(img) == -1) {
+                  selectedImages.push(img)
+                  return
+                }
+                var index = selectedImages.indexOf(img);
+                selectedImages.splice(index,1)
               }
-            } else {
-              var index = selectedImages.indexOf(img);
-              selectedImages.splice(index,1)
+
             }
           }
         });
@@ -51,7 +78,8 @@
           var query = '{{query}}';
           var obj = {
             images: selectedImages,
-            query: query
+            query: query,
+            related_images: relatedImages
           };
           document.getElementById('feedback').value = JSON.stringify(obj)
           document.getElementById('feedback-form').submit();
