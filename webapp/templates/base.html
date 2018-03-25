@@ -5,13 +5,16 @@
   <title>{% block title %} DeepLearning with CNN {% endblock %} </title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/agency.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
 </head>
 <body id='page-top'>
   {% include 'nav.html' %}
-  
+
   {% block model_setup %}
   {% endblock %}
   <div class="container main-container">
@@ -20,6 +23,5 @@
     {% endblock %}
   </div>
   {% include 'footer.html' %}
-<script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
 </body>
 </html>
