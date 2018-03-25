@@ -133,6 +133,8 @@ def search():
     # rand_images = []
     # for i in range(1, 11):
     #     rand_images.append(str(i) + '.jpg')
+    # related_images = rand_images
+
     splitted_images = split_array_equally(rand_images, 3)
     return render_template('pages/result.html', query=search_query, images=splitted_images, related_images=rand_images)
 
