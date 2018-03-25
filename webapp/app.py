@@ -122,7 +122,7 @@ def suggestion():
 def apps():
     return jsonify([{'images': ['jpt', 'haha']}, {'related': ['hait', 'jait']}])
 
-@app.route('/', methods=['post', ])
+@app.route('/', methods=['get', ])
 def index():
     # note this file_dir sent as argument was to just for testing. Also remove {{file_dir}} from index.html when removing this.
     return render_template('pages/index.html' , file_dir= "")
