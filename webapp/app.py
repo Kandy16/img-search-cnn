@@ -15,6 +15,7 @@ from flask import Flask
 from flask import request
 from flask import render_template
 from flask import send_from_directory
+from flask import jsonify
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from utils.utils import split_array_equally
@@ -109,6 +110,14 @@ def image(filename):
     except:
         abort(404)
 
+@app.route('/suggestion', methods=['get', ])
+def suggestion():
+    query = request.args.get('query', '', type=str)
+    # Call the database
+    # Store in variable
+    # result = { 'data': results }
+    result = dict()
+    return jsonify(result)
 
 @app.route('/', methods=['get', ])
 def index():
@@ -160,10 +169,8 @@ def feedback():
     rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , images)
 
     #rand_images = ['000001.jpg']
-
-    search_query = "cat"
-
-    return render_template('pages/result.html', query=search_query, images=rand_images , image_number = images[0])
+    splitted_images = split_array_equally(rand_images, 3)
+    return render_template('pages/result.html', query=query, images=splitted_images)
 
 
     # NEED TO ASK MADHU ABOUT DATABASE
