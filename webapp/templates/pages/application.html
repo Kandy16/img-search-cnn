@@ -1,0 +1,29 @@
+{% extends 'base.html'%}
+{% block content %}
+<div class="main">
+  <div class="row">
+    <div class="col-xs-6 col-xs-offset-3 col-md-8 col-md-offset-2">
+      <form action="/search" method="POST" id="search-form">
+        <div class="input-group">
+          <input type="text" name='search' class="form-control" id='searchbox' placeholder="Search for..." autocomplete="off">
+          <span class="input-group-btn">
+            <input type="hidden" name="ml_settings" id="ml_settings">
+            <input type="button" id="searchbtn" class="btn btn-default" value="Go!">
+          </span>
+        </div><!-- /input-group -->
+      </form>
+    </div><!-- /.col-lg-6 -->
+  </div><!-- /.row -->
+</div>
+
+<script type="text/javascript">
+  var searchBox = $("#searchbox");
+  searchBox.autocomplete({
+    source: '/suggestion',
+    minLength: 2,
+    select: function(evt, ui) {
+      console.log(ui.item.value)
+    }
+  });
+</script>
+{% endblock %}

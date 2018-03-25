@@ -45,7 +45,7 @@ a.setting-link:hover, a.setting-link:focus {
   background-color: #6f5499;
 }
 .form-wrap {
-    width: 820px;
+    max-width: 800px;
     margin: 0 auto;
     margin-top: 15px;
     border-radius: 5px;
@@ -63,4 +63,13 @@ a.setting-link:hover, a.setting-link:focus {
 .related-images {
     border: 7px solid #e2e2e2;
     border-radius: 16px;
+}
+
+.make-defafult-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  margin-top: 15px;
+}
+.col-xs-offset-73 {
+  margin-left: 73%;
 }

@@ -20,15 +20,17 @@
       var model_selection = $('#model-selection');
       var algo_selection = $('#mlalgorithm')
       var mlalgo_container = $("#mlalgo-container");
-      var setting_container = $("#setting-container");
+      var extract_container = $("#extract-container");
       var default_button_container = $("#default-button-container");
       var make_default_btn = $("#make_default_btn");
       var extract_btn =  $("#extract_btn");
       var extract_form = $("#extract_form");
 
+
       function hideall() {
         mlalgo_container.css({'display': 'none'});
-        setting_container.css({'display': 'none'});
+        extract_container.css({'display': 'none'});
+        default_button_container.css({'display': 'none'});
       }
 
       model_selection.on('change', (evt) => {
@@ -50,8 +52,8 @@
             text: val.name
           }));
         }
+        neural_layer.trigger('change');
       });
-
 
       algo_selection.on('change', (evt) => {
         evt.preventDefault();
@@ -80,11 +82,12 @@
         });
 
         var obj = matched[0];
+
         if (obj.extracted) {
           mlalgo_container.css({'display': 'block'})
-          setting_container.css({'display': 'none'})
+          extract_container.css({'display': 'none'})
         } else {
-          setting_container.css({'display': 'block'})
+          extract_container.css({'display': 'block'})
           mlalgo_container.css({'display': 'none'})
         }
       });
@@ -93,25 +96,33 @@
         evt.preventDefault();
         var output = {
            'model': model_selection.val(),
-           'layer': neural_layer.val(),
-           'algo': algo_selection.val() == 'Select Algo' ? 'knn' : algo_selection.val()
+           'layer': neural_layer.val()
         }
         document.getElementById("extract_settings").value = JSON.stringify({"model":5 , "layer":6})
         extract_form.submit();
-      })
+      });
 
       make_default_btn.on('click', (evt) => {
         evt.preventDefault();
         var output = {
            'model': model_selection.val(),
            'layer': neural_layer.val(),
-           'algo': algo_selection.val() == 'Select Algo' ? 'knn' : algo_selection.val()
+           'algo': algo_selection.val()
         }
-
         document.getElementById('default_settings').value = JSON.stringify(output)
         extract_form.submit();
       })
 
+      algo_selection.on('change', (evt) => {
+        evt.preventDefault();
+        var val = algo_selection.val()
+
+        if (val != 'Select Algo') {
+          default_button_container.css({'display': 'block'})
+        } else {
+          default_button_container.css({'display': 'none'})
+        }
+      });
     });
   </script>
     </div>

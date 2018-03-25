@@ -112,14 +112,17 @@ def image(filename):
 
 @app.route('/suggestion', methods=['get', ])
 def suggestion():
-    query = request.args.get('query', '', type=str)
+    term = request.args.get('term', '', type=str)
     # Call the database
     # Store in variable
-    # result = { 'data': results }
-    result = dict()
-    return jsonify(result)
+    # result = ['hello', 'world']
+    return jsonify(['hello', 'world', 'this'])
 
-@app.route('/', methods=['get', ])
+@app.route('/apps', methods=['get', ])
+def apps():
+    return jsonify([{'images': ['jpt', 'haha']}, {'related': ['hait', 'jait']}])
+
+@app.route('/', methods=['post', ])
 def index():
     # note this file_dir sent as argument was to just for testing. Also remove {{file_dir}} from index.html when removing this.
     return render_template('pages/index.html' , file_dir= "")
@@ -272,6 +275,10 @@ def extract():
     message = query + images
     return render_template('pages/settings.html', app_settings=app_settings , message=message)
 
+
+@app.route('/application', methods=['get',])
+def application():
+    return render_template('pages/application.html')
 
 @app.errorhandler(404)
 def page_not_found(e):
