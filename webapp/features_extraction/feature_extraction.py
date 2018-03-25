@@ -4,7 +4,7 @@ from model_and_prototxt_downloader import ModelAndPrototxtDownloader
 from EnumModels import Models
 import image_list_creator
 import pickle
-import caffe
+#import caffe
 import numpy as np
 import pathlib2
 import pdb
@@ -109,10 +109,10 @@ class FeatureExtraction(object):
     # global feature extraction method called by all models
     def _extract_features(self, pretrained_model, model_def, extract_from_layer, input_exp_file , batch_size ):
 
-    	def chunks(l, n):
-    		"""Yield successive n-sized chunks from l."""
-    		for i in range(0, len(l), n):
-    			yield l[i:i + n]
+        def chunks(l, n):
+            """Yield successive n-sized chunks from l."""
+            for i in range(0, len(l), n):
+                yield l[i:i + n]
 
         # returns batch of image of size "batch_size"
         def _get_this_batch(image_list, batch_index, batch_size):
