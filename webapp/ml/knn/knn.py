@@ -3,7 +3,7 @@ import random
 import numpy
 import operator
 import pathlib2
-import config
+# import config
 import pickle
 
 
