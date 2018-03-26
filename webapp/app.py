@@ -7,26 +7,24 @@ import pdb
 import json
 from datetime import datetime
 import os
-
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), 'features_extraction')) # BUT WHYYYYYYYYYYYYYYY ASKKKKKKKKKKKKKKKKKKKKKKK
 from PIL import Image
 from flask import Response, abort
 from flask import Flask
 from flask import request
 from flask import render_template
 from flask import send_from_directory
+from flask import jsonify
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
+from utils.utils import split_array_equally
 
 import config
 from database.models.models import db
-from database.models.models import Feedback, Image, Base, NeuralLayer, NeuralNetworkModel
+from database.models.models import Feedback, Image, Base, NeuralLayer, NeuralNetworkModel, DefaultSettings
 from sqlalchemy import event, DDL
-
-# import for knn machine learning implementation
-from ml.knn import knn
-
-# import for cosine similarity
-from ml.cosine import cosine_similarity_cluster as cs
+import caffe
 
 app_settings = {
     'algorithms': ['KNN', 'Cosine Similarity'],
@@ -40,13 +38,11 @@ basedir = config.BASE_DIR
 # handling feedback_dir
 feedback_dir = config.FEEDBACK_DIR
 
-parent_path = "/".join(basedir.split('/')[:-1])  #IS it used? //TODO
-
 # handling image directory
 img_dir = config.CAFEE_IMAGES_PATH
 
-# object of knnclassifier used for search and feedback
-obj_knn = knn.KNN()
+# TODO only for test
+# img_dir = os.path.join(basedir, 'images/')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'weareLearningDeepLearxingokjalsf2oue'
@@ -60,6 +56,18 @@ db.init_app(app)
 
 # Database fill up initially with default data.
 from database.database import Database
+
+# imports for feature extraction
+from features_extraction import feature_extraction
+from features_extraction import EnumModels
+
+# import for knn machine learning implementation
+from ml.knn import knn
+obj_knn = knn.KNN() # object of KNN used for search(random images), extract , feedback
+
+# import for cosine similarity
+from ml.cosine import cosine_similarity_cluster as cs
+obj_cosine = cs.CosineSimilarityCluster() # object of KNN used for extract , feedback
 
 # default query object
 query_object = {
@@ -90,10 +98,14 @@ def inject_now():
     available_models = dict()
     models_names = []
     all_neural_models = db.session.query(NeuralNetworkModel).all()
+
+    for x in db.session.query(DefaultSettings).all():
+        default_settings = {"model_name" : x.model_name , "layer_name": x.layer_name , "ml_algorithm" : x.ml_algorithm}
+
     for model in all_neural_models:
         models_names.append(model.name)
         available_models[model.name] = [{'name': x.name, 'extracted': x.extracted } for x in model.neural_network]
-    return {'now': datetime.utcnow(), 'available_models': json.dumps(available_models), 'models_names': models_names, 'capitalize': capitalize }
+    return {'now': datetime.utcnow(), 'available_models': json.dumps(available_models), 'models_names': models_names, 'capitalize': capitalize , 'default_settings':default_settings}
 
 @app.route('/<path:filename>', methods=['get', ])
 def image(filename):
@@ -102,6 +114,17 @@ def image(filename):
     except:
         abort(404)
 
+@app.route('/suggestion', methods=['get', ])
+def suggestion():
+    term = request.args.get('term', '', type=str)
+    # Call the database
+    # Store in variable
+    # result = ['hello', 'world']
+    return jsonify(['hello', 'world', 'this'])
+
+@app.route('/apps', methods=['get', ])
+def apps():
+    return jsonify([{'images': ['jpt', 'haha']}, {'related': ['hait', 'jait']}])
 
 @app.route('/', methods=['get', ])
 def index():
@@ -112,16 +135,24 @@ def index():
 @app.route('/search', methods=['POST', ])
 def search():
     search_query = request.form.get('search')
-    ml_settings = request.form.get('ml_settings')
+    # ml_settings = request.form.get('ml_settings')
 
     # condition 1
     # when query is totally new
     rand_images = obj_knn.get_random_images(10)  #
+    related_images = obj_knn.get_random_images(10)
 
     # condition 2
     # when query is already in database
 
-    return render_template('pages/result.html', query=search_query, images=rand_images)
+    # TODO remove it
+    # rand_images = []
+    # for i in range(1, 11):
+    #     rand_images.append(str(i) + '.jpg')
+    # related_images = rand_images
+
+    splitted_images = split_array_equally(rand_images, 3)
+    return render_template('pages/result.html', query=search_query, images=splitted_images, related_images=rand_images)
 
 
 @app.route('/feedback', methods=['POST', ])
@@ -140,16 +171,13 @@ def feedback():
     query = feedback_dict['query']
     images = feedback_dict['images']
 
-
-    obj = cs.CosineSimilarityCluster()
-    #obj.nearest_neighbours_for_each_imagevector()
     # using filenames from neighbours json file test
-    rand_images = obj.get_feedback("/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/cosine/cosine_nearest_neighbors/fc8/" , images)
+    calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , "bvlc_alexnet" , "fc8")
+    rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , images)
+
     #rand_images = ['000001.jpg']
-
-    search_query = "cat"
-
-    return render_template('pages/result.html', query=search_query, images=rand_images , image_number = images[0])
+    splitted_images = split_array_equally(rand_images, 3)
+    return render_template('pages/result.html', query=query, images=splitted_images)
 
 
     # NEED TO ASK MADHU ABOUT DATABASE
@@ -189,16 +217,35 @@ def feedback():
 @app.route('/settings', methods=['post', 'get'])
 def settings():
     # Have to check if the folders exist and accordingly we have to update database of neural layer i.e. extracted status to true.
-    allrow = []
+    allrow = "normal"
     if request.method == 'POST':
+        try:
+            default_settings_raw = request.form.to_dict()
+            default_settings_dict = json.loads(default_settings_raw["default_settings"])
+        except:
+            abort(404)
+
         app_settings['current'] = 'Cosine'
+        allrow = default_settings_dict
+
+        # Need to update database with new data received from server as post i.e when default button is pressed
+        target_row = db.session.query(DefaultSettings).all()[0]
+        target_row.model_name = default_settings_dict["model"]
+        target_row.layer_name = default_settings_dict["layer"]
+        target_row.ml_algorithm = default_settings_dict["algo"]
+        db.session.commit()
+        #default_settings = {"model_name" : default_settings_dict["model"] , "layer_name": default_settings_dict["layer"] , "ml_algorithm" : default_settings_dict["algo"]}
     else:
+        # Obtaining the default settings from the database
+        #for x in db.session.query(DefaultSettings).all():
+            #default_settings = {"model_name" : x.model_name , "layer_name": x.layer_name , "ml_algorithm" : x.ml_algorithm}
+
         load_all_rows = db.session.query(NeuralLayer).all()
         for row in load_all_rows:
             extract_from_layer = row.name
             pretrained_model = row.neural_network.name
             smoothed_layer_name = extract_from_layer.replace("/" , "-")
-            filename = os.path.join(config.BASE_DIR, "dataset", "features_etd1a" ,  pretrained_model + ".caffemodel", smoothed_layer_name)
+            filename = os.path.join(config.BASE_DIR, "dataset", "features_etd1a" ,  pretrained_model, smoothed_layer_name)
             if os.path.exists(filename):
                 # This is where we start updating database extracted boolean in neural layer.
                 target_row = db.session.query(NeuralLayer).filter_by(id = row.id).first()
@@ -208,14 +255,52 @@ def settings():
                 target_row = db.session.query(NeuralLayer).filter_by(id = row.id).first()
                 target_row.extracted = False
                 db.session.commit()
-    return render_template('pages/settings.html', app_settings=app_settings , allrow = allrow)
+    return render_template('pages/settings.html', app_settings=app_settings , allrow = allrow )
 
 
 @app.route('/extract', methods=['post', ])
 def extract():
-    message = 'Sucessfully extracted model'
-    return render_template('pages/settings.html', message=message)
+    try:
+        feedback_raw = request.form.to_dict()
+        feedback_dict = json.loads(feedback_raw["extract_settings"])
+    except:
+        abort(404)
+    query = feedback_dict['model']
+    images = feedback_dict['layer']
 
+    # Here as a post we expect a dictionary
+    #For alexnet
+    #extract_info = {"model_name":EnumModels.Models.bvlc_alexnet.name , "model_layer":"fc8"}
+
+    #For bvlc_googlenetextract_info = {"model_name":EnumModels.Models.bvlc_reference_caffenet.name , "model_layer":"fc8"}
+    #
+    # Random images in search - check if normal or clustered random images.
+
+    # Step 1 First we need to extract features depending on the given model and layer - internally it downloads model and prototxt, creates images.txt.
+    # Step 2 after extraction we need to prepare data for getting random images i.e. clustering
+    #                                    prepare data for KNN i.e. vectors.p file.
+    #                                    prepare data for cosine i.e. nearest neighbours for all image vectors.
+    #
+
+    #obj_fe = feature_extraction.FeatureExtraction(config.FEATURE_EXTRACTION_MODELS_DOWNLOAD_PATH , config.TEST_CAFEE_IMAGES_PATH , config.BASE_DIR) # Test config to real images file
+
+    #obj_fe.extract_features(extract_info["model_name"] , extract_info["model_layer"])
+
+    # Prepare data for cosine similarity for given feature vectors as per model and layer provided
+    #obj_cosine.nearest_neighbours_for_each_imagevector(config.COSINE_IMG_VECTORS_FILEPATH , config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , extract_info["model_name"] , extract_info["model_layer"])
+
+    # Prepare data for KNN. vectors.p for given model and layer
+    #obj_knn.prepare_data_for_KNN(config.KNN_IMG_VECTORS_FILEPATH , config.KNN_DATA_SAVE_PATH  , extract_info["model_name"] , extract_info["model_layer"])
+
+    #message = 'Sucessfully extracted model' + extract_info["model_name"] + extract_info["model_layer"]
+
+    message = query + images
+    return render_template('pages/settings.html', app_settings=app_settings , message=message)
+
+
+@app.route('/application', methods=['get',])
+def application():
+    return render_template('pages/application.html')
 
 @app.errorhandler(404)
 def page_not_found(e):

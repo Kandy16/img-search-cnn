@@ -6,7 +6,6 @@ from webapp.ml.clustering.image_clustering import ImageClustering
 
 
 class RandomImages(object):
-
     def __init__(self, path_to_features, number_of_clusters=10):
         # data structures
         self.path_to_features = path_to_features
@@ -19,8 +18,7 @@ class RandomImages(object):
             if file.endswith(".txt"):
                 files.append(file)
         self.files = files
-
-
+        
     # This is preparing the data so that the clustering algorithm can use it
     def get_n_random_images(self, n):
         random_images = []
@@ -28,7 +26,7 @@ class RandomImages(object):
             filename = random.choice(self.clustering.clusters[x % self.clustering.number_of_clusters])
             random_images.append(filename)
         return random_images
-
+      
     def get_n_random_images_full_random(self, n):
         random_images = []
         for x in range(0, n):
@@ -49,8 +47,6 @@ class RandomImages(object):
             filename = random.choice(self.clustering.clusters[random_cluster])
             random_images.append(filename)
         return random_images
-
-
 
     # adjusts the Probablities based on feedback
     def compute_probabilties_old(self, relevant_images, irrelevant_images):
@@ -109,8 +105,6 @@ class RandomImages(object):
             probabilities_accumalated.append(probabilities_accumalated[(x - 1)] + probabilities[x])
         return probabilities, probabilities_accumalated
 
-
-
 # adjusts the Probablities based on feedback
     def compute_probabilties(self, relevant_images, irrelevant_images):
         probabilities = []
@@ -136,12 +130,6 @@ class RandomImages(object):
         for x in range(1, self.clustering.number_of_clusters):
             probabilities_accumalated.append(probabilities_accumalated[(x - 1)] + probabilities[x])
         return probabilities, probabilities_accumalated
-
-
-
-
-
-
 
 if __name__ == "__main__":
     obj = RandomImages('/Users/volk/Desktop/Forschungspraktikum/vectors10000.p', 10)

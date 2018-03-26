@@ -16,7 +16,7 @@ class CosineSimilarityCluster(object):
     self.dimension = dimension
     self.trees = trees
 
-  def nearest_neighbours_for_each_imagevector(self , imagevectors_filepath= "/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/features/",   cosine_neighbour_save_path  = "/var/www/clone-img-search-cnn/img-search-cnn/webapp/dataset/cosine/cosine_nearest_neighbors/", model = "" , layer = "fc8"):        
+  def nearest_neighbours_for_each_imagevector(self , imagevectors_filepath,   cosine_neighbour_save_path,  model, layer):        
     # config
     dims = self.dimension
     n_nearest_neighbors = self.n_nearest_neighbors
@@ -79,7 +79,7 @@ class CosineSimilarityCluster(object):
       str1 = relevant_images[0]
       image_name = os.path.splitext(str1)[0]
 
-      file_path = calculated_cosine_neighbours_path + image_name +".json"
+      file_path = os.path.join(calculated_cosine_neighbours_path , image_name +".json")
 
       with open(file_path) as f:
           for line in f:  # note there will just be one line in the file i.e list of dictionaries

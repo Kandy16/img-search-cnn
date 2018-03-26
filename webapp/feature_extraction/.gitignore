@@ -1,6 +1,0 @@
-models/
-features_test/
-*.pyc
-./**/*.pyc
-features/
-out.pkl

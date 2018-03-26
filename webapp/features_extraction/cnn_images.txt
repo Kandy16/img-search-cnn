@@ -1,0 +1,8 @@
+0	/var/www/img-search-cnn/webapp/dataset/images_TRY/000000.jpg	0
+0	/var/www/img-search-cnn/webapp/dataset/images_TRY/000006.jpg	0
+0	/var/www/img-search-cnn/webapp/dataset/images_TRY/000007.jpg	0
+0	/var/www/img-search-cnn/webapp/dataset/images_TRY/000005.jpg	0
+0	/var/www/img-search-cnn/webapp/dataset/images_TRY/000001.jpg	0
+0	/var/www/img-search-cnn/webapp/dataset/images_TRY/000004.jpg	0
+0	/var/www/img-search-cnn/webapp/dataset/images_TRY/000003.jpg	0
+0	/var/www/img-search-cnn/webapp/dataset/images_TRY/000008.jpg	0
