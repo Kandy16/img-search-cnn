@@ -1,4 +1,4 @@
-from .models.models import NeuralNetworkModel , MachineLearningAlgorithm, NeuralLayer
+from .models.models import NeuralNetworkModel , MachineLearningAlgorithm, NeuralLayer, DefaultSettings
 from features_extraction.EnumModels import Models
 
 class Database(object):
@@ -6,6 +6,11 @@ class Database(object):
 		pass
 
 	def fillin_database(self,db):
+
+		obj_default_settings = DefaultSettings(model_name=Models.bvlc_alexnet.name , layer_name = "fc8", ml_algorithm="cosine" )
+		db.session.add(obj_default_settings)
+		db.session.commit()
+
 		# Now we fill in the models using the ENUMMODELS
 		for model in Models:
 			print(model.value)

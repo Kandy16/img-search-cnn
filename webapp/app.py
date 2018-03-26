@@ -22,7 +22,7 @@ from utils.utils import split_array_equally
 
 import config
 from database.models.models import db
-from database.models.models import Feedback, Image, Base, NeuralLayer, NeuralNetworkModel
+from database.models.models import Feedback, Image, Base, NeuralLayer, NeuralNetworkModel, DefaultSettings
 from sqlalchemy import event, DDL
 import caffe
 
@@ -98,10 +98,14 @@ def inject_now():
     available_models = dict()
     models_names = []
     all_neural_models = db.session.query(NeuralNetworkModel).all()
+
+    for x in db.session.query(DefaultSettings).all():
+        default_settings = {"model_name" : x.model_name , "layer_name": x.layer_name , "ml_algorithm" : x.ml_algorithm}
+
     for model in all_neural_models:
         models_names.append(model.name)
         available_models[model.name] = [{'name': x.name, 'extracted': x.extracted } for x in model.neural_network]
-    return {'now': datetime.utcnow(), 'available_models': json.dumps(available_models), 'models_names': models_names, 'capitalize': capitalize}
+    return {'now': datetime.utcnow(), 'available_models': json.dumps(available_models), 'models_names': models_names, 'capitalize': capitalize , 'default_settings':default_settings}
 
 @app.route('/<path:filename>', methods=['get', ])
 def image(filename):
@@ -168,7 +172,7 @@ def feedback():
     images = feedback_dict['images']
 
     # using filenames from neighbours json file test
-    calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , "bvlc_reference_caffenet" , "fc8")
+    calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , "bvlc_alexnet" , "fc8")
     rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , images)
 
     #rand_images = ['000001.jpg']
@@ -215,9 +219,27 @@ def settings():
     # Have to check if the folders exist and accordingly we have to update database of neural layer i.e. extracted status to true.
     allrow = "normal"
     if request.method == 'POST':
+        try:
+            default_settings_raw = request.form.to_dict()
+            default_settings_dict = json.loads(default_settings_raw["default_settings"])
+        except:
+            abort(404)
+
         app_settings['current'] = 'Cosine'
-        allrow = "Clicked the default button"
+        allrow = default_settings_dict
+
+        # Need to update database with new data received from server as post i.e when default button is pressed
+        target_row = db.session.query(DefaultSettings).all()[0]
+        target_row.model_name = default_settings_dict["model"]
+        target_row.layer_name = default_settings_dict["layer"]
+        target_row.ml_algorithm = default_settings_dict["algo"]
+        db.session.commit()
+        #default_settings = {"model_name" : default_settings_dict["model"] , "layer_name": default_settings_dict["layer"] , "ml_algorithm" : default_settings_dict["algo"]}
     else:
+        # Obtaining the default settings from the database
+        #for x in db.session.query(DefaultSettings).all():
+            #default_settings = {"model_name" : x.model_name , "layer_name": x.layer_name , "ml_algorithm" : x.ml_algorithm}
+
         load_all_rows = db.session.query(NeuralLayer).all()
         for row in load_all_rows:
             extract_from_layer = row.name

@@ -4,7 +4,7 @@ from model_and_prototxt_downloader import ModelAndPrototxtDownloader
 from EnumModels import Models
 import image_list_creator
 import pickle
-#import caffe
+import caffe
 import numpy as np
 import pathlib2
 import pdb

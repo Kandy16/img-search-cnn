@@ -54,3 +54,14 @@ class MachineLearningAlgorithm(Base):
 
     def __str__(self):
         return self.name
+
+
+class DefaultSettings(Base):
+    __tablename__ = 'defaultsettings'
+    id = db.Column(db.Integer, primary_key=True)
+    model_name = db.Column(db.String(30))
+    layer_name = db.Column(db.String(30))
+    ml_algorithm = db.Column(db.String(30))
+
+    def __str__(self):
+        return self.model_name
