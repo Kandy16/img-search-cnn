@@ -31,7 +31,7 @@ class FeatureExtraction(object):
 
         #replace / if present in layername by dash (-)
         smoothed_layer_name = extract_from_layer.replace("/" , "-")
-        filename = os.path.join(self.main_dir, "dataset", "features_etd1as" ,  pretrained_model, smoothed_layer_name)
+        filename = os.path.join(self.main_dir, "dataset", "features_etd1a" ,  pretrained_model, smoothed_layer_name)
         if not os.path.exists(filename):
             takeaction = {
                 Models.bvlc_alexnet.name : self._features_alexnet,
