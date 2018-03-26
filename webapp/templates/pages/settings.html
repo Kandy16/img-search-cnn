@@ -1,6 +1,6 @@
 {% extends 'base.html'%}
 {% block model_setup %}
-  {% include "models_layer_setup.html"%}
+  {% include "models_layer_setup.html" with context%}
 {% endblock model_setup %}
 {% block content %}
     <div class="container">
@@ -22,10 +22,11 @@
       var mlalgo_container = $("#mlalgo-container");
       var extract_container = $("#extract-container");
       var default_button_container = $("#default-button-container");
-      var make_default_btn = $("#make_default_btn");
+      
       var extract_btn =  $("#extract_btn");
       var extract_form = $("#extract_form");
-
+      var make_default_btn = $("#make_default_btn");
+      var settings_form = $("#settings_form");
 
       function hideall() {
         mlalgo_container.css({'display': 'none'});
@@ -110,7 +111,7 @@
            'algo': algo_selection.val()
         }
         document.getElementById('default_settings').value = JSON.stringify(output)
-        extract_form.submit();
+        settings_form.submit();
       })
 
       algo_selection.on('change', (evt) => {

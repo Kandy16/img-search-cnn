@@ -33,7 +33,7 @@ obj_cosine = cs.CosineSimilarityCluster() # object of KNN used for extract
 
 
 
-extract_info = {"model_name":EnumModels.Models.bvlc_alexnet.name , "model_layer":"fc8"}
+extract_info = {"model_name":EnumModels.Models.bvlc_reference_caffenet.name , "model_layer":"fc8"}
 # Here is the code that will run for feature extraction and also for KNN vecotrs.p preparation and cosine similarity data preparation for a given model and layer
 obj_fe = feature_extraction.FeatureExtraction(config.FEATURE_EXTRACTION_MODELS_DOWNLOAD_PATH , config.TEST_CAFEE_IMAGES_PATH , config.BASE_DIR) # Test config to real images file
 

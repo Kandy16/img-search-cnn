@@ -109,10 +109,10 @@ class FeatureExtraction(object):
     # global feature extraction method called by all models
     def _extract_features(self, pretrained_model, model_def, extract_from_layer, input_exp_file , batch_size ):
 
-    	def chunks(l, n):
-    		"""Yield successive n-sized chunks from l."""
-    		for i in range(0, len(l), n):
-    			yield l[i:i + n]
+        def chunks(l, n):
+            """Yield successive n-sized chunks from l."""
+            for i in range(0, len(l), n):
+                yield l[i:i + n]
 
         # returns batch of image of size "batch_size"
         def _get_this_batch(image_list, batch_index, batch_size):
@@ -142,14 +142,10 @@ class FeatureExtraction(object):
         #image_paths_list_chunk = [[x for x in image_paths_list_chunk][-1]]# just for this time. DELETE for general
         #pdb.set_trace()
         for chunks_image_path_list in image_paths_list_chunk:
-        	print("hhhhhhhhheeeeeeeeeeeee" , chunks_image_path_list)
-
 	        #pdb.set_trace()
 	        images_loaded_by_caffe = [caffe.io.load_image(im) for im in chunks_image_path_list] 
-	        print("reached here1")
 	        # create a net object 
 	        net = caffe.Net(model_def, pretrained_model, caffe.TEST)
-	        print("reached here2")
 	        #pdb.set_trace()
 	        # Set up transformer - creates transformer object
 	        transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
@@ -159,8 +155,6 @@ class FeatureExtraction(object):
 	        transformer.set_channel_swap('data', (2,0,1))
 	        # Set raw_scale = 255 to multiply with the values loaded with caffe.io.load_image
 	        transformer.set_raw_scale('data', 255)
-	        
-	        print("reached here3")
 	        
 	         
 	        if (len(images_loaded_by_caffe) % batch_size == 0):
@@ -183,17 +177,15 @@ class FeatureExtraction(object):
 	            features_for_this_batch = net.blobs[extract_from_layer].data[data_blob_index].copy()
 	            features_all_images.extend(features_for_this_batch)
 	        
-	        #print(features_all_images)
-	        
 	        # store generated features in a binarized pickle file and write to disk
 	        pkl_object = {"filename": chunks_image_path_list, "features": features_all_images}
 	        print("reached here4")
 	        # TRYING TO PUT TO TEXT FILE TO SEE CAN DELETE LATER AS WE WILL USE PICKLE FILES
 	        self._save_features_to_file(features_all_images , chunks_image_path_list , pretrained_model , extract_from_layer )
 
-	        output = open(output_pkl_file_name, 'wb')
+	        #output = open(output_pkl_file_name, 'wb')
 	        #pickle.dump(pkl_object, output, 2)
-	        output.close()
+	        #output.close()
 
 
 
