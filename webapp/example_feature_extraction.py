@@ -54,7 +54,7 @@ clusters_save_location = config.CLUSTERING_DATA_SAVE_PATH
 # i.e 
 #replace / if present in layername by dash (-)
 smoothed_layer_name = extract_info["model_layer"].replace("/" , "-")
-obj_cluster.get_clusters(vectors_save_location , clusters_save_location , extract_info["model_name"] , smoothed_layer_name)
+obj_cluster.prepare_clusters(vectors_save_location , clusters_save_location , extract_info["model_name"] , smoothed_layer_name)
 
 # END    CLUSTERING EXAMPLEEEEEEEEEEEEEEEE
 
