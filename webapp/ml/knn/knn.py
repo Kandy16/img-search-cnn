@@ -6,38 +6,10 @@ import pathlib2
 # import config
 import pickle
 
-
-basedir = os.getcwd()
-
-try:
-    pathToFeatures = config.CAFEE_FC8_PATH
-except Exception as e:
-    # TODO change the directory to the good one
-    pathToFeatures = os.path.join('../', basedir, 'images/')
-
-# bahira ko lagi ../
-img_path = os.path.join(basedir, 'images/')
-
 class KNN(object):
 
     def __init__(self):
         pass
-
-    # def get_random_images(self , number_of_images):
-    #     # Simple random images creation
-    #     number = number_of_images
-    #     start = 0
-    #     end = 1000
-    #     images = []
-    #     for x in range(0, number):
-    #         i_rand = random.randrange(start, end)
-    #         img_name = str(i_rand).zfill(6) + ".jpg"
-    #         images.append(img_name)
-
-    #     # TODO call Florians clustering alogorithm for getting random images.
-    #     # CODE GOES HERE
-
-    #     return images
 
     # this function builds a numpy array for a certain feature vector
     def _buildNumpyArrayForFeaturesByFileName(self, filename_path):

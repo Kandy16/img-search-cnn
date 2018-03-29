@@ -113,7 +113,7 @@ class CNTKFeatureExtraction(object):
 
      
         # evaluate model and write out the desired layer output
-        features_folder_path = os.path.join(main_dir , "dataset", "features_etd1a" , pretrained_model +".caffemodel", extract_from_layer)
+        features_folder_path = os.path.join(main_dir , "dataset", "features_etd1a" , pretrained_model , extract_from_layer)
         self.eval_and_write(model_file, extract_from_layer, minibatch_source , map_file , features_folder_path)
 
 if __name__ == "__main__":

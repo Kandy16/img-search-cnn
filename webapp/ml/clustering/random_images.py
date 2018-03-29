@@ -32,7 +32,7 @@ class RandomImages(object):
 
     def get_n_random_images_from_clusters(self, n , image_format):
         random_images = []
-        clusters , _ = self.obj_ic.get_clusters(self.vectors_save_location , self.clusters_save_location , self.modelname , self.layername)
+        clusters , _ = self.obj_ic.get_prepare_clusters(self.vectors_save_location , self.clusters_save_location , self.modelname , self.layername)
         for x in range(0, n):
             filename = random.choice(clusters[x % self.number_of_clusters])
             filename = os.path.splitext(filename)[0] + image_format # format expected as .jpg or others
@@ -41,7 +41,7 @@ class RandomImages(object):
 
     # draws n samples from a given probability distribution
     def get_n_random_images_based_on_feedback(self, n, image_format, positive_feedback, negative_feedback):
-        clusters , reversed_clusters = self.obj_ic.get_clusters(self.vectors_save_location , self.clusters_save_location , self.modelname , self.layername)
+        clusters , reversed_clusters = self.obj_ic.get_prepare_clusters(self.vectors_save_location , self.clusters_save_location , self.modelname , self.layername)
         probabilities, probabilities_accumulated = self._compute_probabilties(positive_feedback, negative_feedback , reversed_clusters)
         random_images = []
         for x in range(0, n):

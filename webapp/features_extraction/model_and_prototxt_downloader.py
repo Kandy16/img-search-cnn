@@ -68,7 +68,7 @@ class ModelAndPrototxtDownloader(object):
         filename = os.path.join(filename , model_file_name)
         if not os.path.exists(filename):
             print('Downloading model from ' + model_url + ', may take a while...')
-            pdb.set_trace()
+            #pdb.set_trace()
             urlretrieve(model_url, filename)
             print('Saved model as ' + filename)
         else:
