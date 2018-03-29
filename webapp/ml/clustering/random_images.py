@@ -11,7 +11,7 @@ class RandomImages(object):
         self.path_to_features = path_to_features
         # self.number_of_clusters = number_of_clusters
         # todo try to pickle the data and load it for efficiency
-        self.clustering = ImageClustering(path_to_features, number_of_clusters)
+        self.clustering = ImageClustering(number_of_clusters)
         self.probabilities, self.probabilities_accumulated = self.compute_probabilties([], [])
         files = []
         for file in os.listdir(self.path_to_features):
