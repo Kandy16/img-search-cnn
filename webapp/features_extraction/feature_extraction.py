@@ -41,16 +41,18 @@ class FeatureExtraction(object):
                 Models.ResNet18_ImageNet_CNTK_model.name : self._features_resnet18_imagenet_cntk_model
                 # Can add more model and also function associated to it
             }
+            print(" -- Initiating feature extraction -- \n")
             takeaction.get(pretrained_model , errhandler)(pretrained_model , extract_from_layer)
+            print(" -- Completed feature extraction -- \n")
         else:
             print('\n' + 'Features already extracted at ' + filename)
 
     def _features_resnet18_imagenet_cntk_model(self , pretrained_model , extract_from_layer):
-        main_dir = "C:\\Users\\Sabs\\Desktop\\img-search-cnn\webapp\\"
-        #from CNTK_feature_extraction import CNTKFeatureExtraction # Was taking so long to process from app
-        #main_dir = self.main_dir
-        #obj = CNTKFeatureExtraction()
-        #obj.extract_feature(self.model_download_path , self.images_path, main_dir, pretrained_model , extract_from_layer)
+        #main_dir = "C:\\Users\\Sabs\\Desktop\\img-search-cnn\webapp\\"
+        from CNTK_feature_extraction import CNTKFeatureExtraction # Was taking so long to process from app
+        main_dir = self.main_dir
+        obj = CNTKFeatureExtraction()
+        obj.extract_feature(self.model_download_path , self.images_path, main_dir, pretrained_model , extract_from_layer)
         #obj.extract_feature( "C:\\Users\\Sabs\\Desktop\\img-search-cnn\webapp\\feature_extraction\\models\\", "D:\\Deep Learning DATA\\DLImages\\images_TRY\\" ,main_dir , "" , "z" )
 
 
@@ -189,7 +191,10 @@ class FeatureExtraction(object):
 
 
 
-    def _save_features_to_file(self , features , associated_filenames , modelname , layername):   
+    def _save_features_to_file(self , features , associated_filenames , modelname , layername): 
+        def flatten(lst):
+            return sum(([x] if not isinstance(x, list) else flatten(x)for x in lst), [])  
+
         modelname =  os.path.splitext(modelname)[0]
         print("SHOULDDDDDDDDDDD CHANGE TO without CAFFEEE NET" , modelname)
         for index , value in enumerate(features):
@@ -198,6 +203,7 @@ class FeatureExtraction(object):
             # Note we need to work on what model and what layers to save. The following line is subject to change.
             # Here we create correct folder structure to save feature vector
             # Also strip out the "models" folder from the modelname
+
             cwd = self.main_dir
             modelname = os.path.basename(modelname)
 
@@ -210,7 +216,9 @@ class FeatureExtraction(object):
             filename = os.path.splitext(associated_filenames[index])[0] + '.txt'
             filename = os.path.join(features_folder_path , os.path.basename(filename))
             print("So what is my new filename" , filename)
-            np.savetxt(filename, value , newline="\n")
+            #pdb.set_trace()
+            np.savetxt(filename, value.flatten() , newline="\n")
+            
 
 if __name__ == "__main__":
     obj_fe = FeatureExtraction(config.FEATURE_EXTRACTION_MODELS_DOWNLOAD_PATH , config.TEST_CAFEE_IMAGES_PATH , config.BASE_DIR)

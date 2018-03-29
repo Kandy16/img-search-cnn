@@ -12,7 +12,7 @@ class ImageClustering(object):
         self.compression_percentage = compression_percentage
         #self.centroids = self.compute_centroids()
 
-    def get_clusters(self, vectors_save_location , clusters_save_location , modelname , layername ):
+    def get_prepare_clusters(self, vectors_save_location , clusters_save_location , modelname , layername ):
         save_location = os.path.join(clusters_save_location , modelname, layername)
         cluster_file_location = os.path.join(save_location , 'clusters' + str(self.number_of_clusters) + '.p')
         reversed_clusters_location = os.path.join(save_location , 'reversed_clusters' + str(self.number_of_clusters) + '.p')
@@ -23,11 +23,11 @@ class ImageClustering(object):
             return clusters, reversed_clusters
         else:
             pathlib2.Path(os.path.join(clusters_save_location, modelname , layername)).mkdir(parents=True, exist_ok=True)
-            return self.prepare_clusters(vectors_save_location , clusters_save_location , modelname , layername)
+            return self._prepare_clusters(vectors_save_location , clusters_save_location , modelname , layername)
 
 
     # Returns vector full of clusters containing file names and a dictionary where key is filename e.g. '000001.txt' and value is number of the cluster
-    def prepare_clusters(self , vectors_save_location , clusters_save_location , modelname , layername):
+    def _prepare_clusters(self , vectors_save_location , clusters_save_location , modelname , layername):
         # First we check if vectors.p exists for given model and layer. Note we call KNN class for doing this as it is done there.
         save_location = os.path.join(clusters_save_location , modelname, layername)
         vectors_p_file_location = os.path.join(vectors_save_location, modelname , layername , "vectors.p")
@@ -37,11 +37,13 @@ class ImageClustering(object):
             data_set = self._prepare_data_set(vectors_p , save_location)
             connectivity_matrix = self._compute_connectivity_matrix(data_set , save_location)
 
-            if os.path.exists(os.path.join(save_location , 'clusters' + str(self.number_of_clusters) + '.p')) and os.path.exists(os.path.join(save_location + 'reversed_clusters' + str(self.number_of_clusters) + '.p')):
+            # This checking is obsolete. Can delete when refactoring
+            if os.path.exists(os.path.join(save_location , 'clusters' + str(self.number_of_clusters) + '.p')) and os.path.exists(os.path.join(save_location , 'reversed_clusters' + str(self.number_of_clusters) + '.p')):
                 print("clusters.p and reversed_clusters.p available at : " , os.path.join(save_location))
                 clusters = pickle.load(open(os.path.join(save_location , 'clusters' + str(self.number_of_clusters) + '.p'), "rb"))
-                reversed_clusters = pickle.load(open(os.path.join(save_location + 'reversed_clusters' + str(self.number_of_clusters) + '.p'), "rb"))
+                reversed_clusters = pickle.load(open(os.path.join(save_location , 'reversed_clusters' + str(self.number_of_clusters) + '.p'), "rb"))
             else:
+                print("-- Initiating Clusters and Reversed cluster data preparation -- ")
                 clustering = AgglomerativeClustering(n_clusters=self.number_of_clusters, connectivity= connectivity_matrix,
                                                      linkage='ward').fit(data_set)
 
@@ -64,6 +66,7 @@ class ImageClustering(object):
                     print(n)
                 pickle.dump(clusters, open(os.path.join(save_location , 'clusters' + str(self.number_of_clusters) + '.p'), "wb"))
                 pickle.dump(reversed_clusters, open(os.path.join(save_location , 'reversed_clusters' + str(self.number_of_clusters) + '.p'), "wb"))
+                print("-- Completed Clusters and Reversed cluster data preparation -- ")
             return clusters, reversed_clusters
         else:
             print('\n' + "vectors.p" + ' is not available at this location ' + vectors_p_file_location)
@@ -76,6 +79,7 @@ class ImageClustering(object):
             print("data_set.p available at : " , save_location )
             data_set = pickle.load(open(os.path.join(save_location , "data_set.p"), "rb"))
         else:
+            print("-- Initiating data_set preparation -- ")
             features_transformed = []
             for x, y in vectors_p.items():
                 features_transformed.append(y)
@@ -87,6 +91,7 @@ class ImageClustering(object):
             pca.fit(data_set)
             data_set = pca.transform(data_set)
             pickle.dump(data_set, open(os.path.join(save_location , "data_set.p"), "wb"))
+            print("-- Completed data_set preparation -- ")
         return data_set
 
 
@@ -96,8 +101,10 @@ class ImageClustering(object):
             print("connectivity_matrix.p is available at " , save_location)
             connectivity_matrix = pickle.load(open(os.path.join(save_location , 'connectivity_matrix.p'), "rb"))
         else:
+            print("-- Initiating Connectivity Matrix data preparation -- ")
             connectivity_matrix = kneighbors_graph(data_set, n_neighbors=20, include_self=False)
             pickle.dump(connectivity_matrix, open(os.path.join(save_location , 'connectivity_matrix.p'), "wb"))
+            print("-- Completed Connectivity Matrix data preparation -- ")
         return connectivity_matrix
 
     # this method computes the centroids for all clusters
@@ -144,6 +151,4 @@ class ImageClustering(object):
         return np.linalg.norm(features1 - features2)
 
 if __name__ == "__main__":
-    obj = ImageClustering('/Users/volk/Desktop/Forschungspraktikum/vectors10000.p', 10, 0.8)
-    print(obj.clusters)
-    print(obj.reversed_clusters)
+    pass
