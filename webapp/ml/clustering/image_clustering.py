@@ -15,7 +15,7 @@ class ImageClustering(object):
     def get_clusters(self, vectors_save_location , clusters_save_location , modelname , layername ):
         save_location = os.path.join(clusters_save_location , modelname, layername)
         cluster_file_location = os.path.join(save_location , 'clusters' + str(self.number_of_clusters) + '.p')
-        reversed_clusters_location = os.path.join(save_location + 'reversed_clusters' + str(self.number_of_clusters) + '.p')
+        reversed_clusters_location = os.path.join(save_location , 'reversed_clusters' + str(self.number_of_clusters) + '.p')
         if os.path.exists(cluster_file_location) and os.path.exists(reversed_clusters_location):
             print("clusters.p and reversed_clusters.p available at : " , os.path.join(save_location))                
             clusters = pickle.load(open(cluster_file_location, "rb"))
@@ -23,11 +23,11 @@ class ImageClustering(object):
             return clusters, reversed_clusters
         else:
             pathlib2.Path(os.path.join(clusters_save_location, modelname , layername)).mkdir(parents=True, exist_ok=True)
-            return self._prepare_clusters(vectors_save_location , clusters_save_location , modelname , layername)
+            return self.prepare_clusters(vectors_save_location , clusters_save_location , modelname , layername)
 
 
     # Returns vector full of clusters containing file names and a dictionary where key is filename e.g. '000001.txt' and value is number of the cluster
-    def _prepare_clusters(self , vectors_save_location , clusters_save_location , modelname , layername):
+    def prepare_clusters(self , vectors_save_location , clusters_save_location , modelname , layername):
         # First we check if vectors.p exists for given model and layer. Note we call KNN class for doing this as it is done there.
         save_location = os.path.join(clusters_save_location , modelname, layername)
         vectors_p_file_location = os.path.join(vectors_save_location, modelname , layername , "vectors.p")
