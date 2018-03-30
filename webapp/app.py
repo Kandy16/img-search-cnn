@@ -38,8 +38,9 @@ basedir = config.BASE_DIR
 # handling feedback_dir
 feedback_dir = config.FEEDBACK_DIR
 
-# handling image directory
-img_dir = config.CAFEE_IMAGES_PATH
+# handling image directory Choose depending on the images used
+#img_dir = config.CAFEE_IMAGES_PATH
+img_dir = config.TEST_CAFEE_IMAGES_PATH
 
 # TODO only for test
 # img_dir = os.path.join(basedir, 'images/')
@@ -71,6 +72,15 @@ obj_cosine = cs.CosineSimilarityCluster() # object of KNN used for extract , fee
 
 # Import for application - Youtube extraction
 from application.images_youtube_extract import ImagesYoutubeExtract
+
+# Import for random images variations
+from ml.clustering import random_images
+vectors_save_location = config.KNN_DATA_SAVE_PATH
+clusters_save_location = config.CLUSTERING_DATA_SAVE_PATH
+modelname = "bvlc_alexnet"
+layername = "fc7"
+obj_random_images = random_images.RandomImages(vectors_save_location , clusters_save_location , modelname , layername, number_of_clusters=10) # object of KNN used for extract , feedback
+
 
 # default query object
 query_object = {
@@ -142,8 +152,10 @@ def search():
 
     # condition 1
     # when query is totally new
-    rand_images = obj_knn.get_random_images(10)  #
-    related_images = obj_knn.get_random_images(10)
+    #rand_images = obj_knn.get_random_images(10)  #
+    #related_images = obj_knn.get_random_images(10)
+    rand_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
+    related_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
 
     # condition 2
     # when query is already in database
@@ -155,7 +167,7 @@ def search():
     # related_images = rand_images
 
     splitted_images = split_array_equally(rand_images, 3)
-    return render_template('pages/result.html', query=search_query, images=splitted_images, related_images=rand_images)
+    return render_template('pages/result.html', query=search_query, images=splitted_images, related_images=related_images)
 
 
 @app.route('/feedback', methods=['POST', ])
@@ -175,12 +187,14 @@ def feedback():
     images = feedback_dict['images']
 
     # using filenames from neighbours json file test
-    calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , "bvlc_alexnet" , "fc8")
+    calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , "bvlc_alexnet" , "fc7")
     rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , images)
 
     #rand_images = ['000001.jpg']
+    
+    related_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
     splitted_images = split_array_equally(rand_images, 3)
-    return render_template('pages/result.html', query=query, images=splitted_images)
+    return render_template('pages/result.html', query=query, images=splitted_images, related_images=related_images)
 
 
     # NEED TO ASK MADHU ABOUT DATABASE
