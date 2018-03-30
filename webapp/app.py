@@ -69,6 +69,9 @@ obj_knn = knn.KNN() # object of KNN used for search(random images), extract , fe
 from ml.cosine import cosine_similarity_cluster as cs
 obj_cosine = cs.CosineSimilarityCluster() # object of KNN used for extract , feedback
 
+# Import for application - Youtube extraction
+from application.images_youtube_extract import ImagesYoutubeExtract
+
 # default query object
 query_object = {
     'model': 'some model',
@@ -300,7 +303,15 @@ def extract():
 
 @app.route('/application', methods=['get',])
 def application():
-    return render_template('pages/application.html')
+    images_save_location = "/var/www/img-search-cnn/webapp/dataset/applicationData"
+    #youtube_url = "https://www.youtube.com/watch?v=kQcUamGg7Yw"
+    obj_iye = ImagesYoutubeExtract(images_save_location)
+    urls , origurls = obj_iye.get_urls_search_query("monkey") 
+    obj_iye.extract_images_youtube(origurls[0] , "salgaris")
+
+
+    #urls = [u'https://www.youtube.com/embed/axgFo7QazQo', u'https://www.youtube.com/embed/1Wh8RzcQZr4', u'https://www.youtube.com/embed/WEkSYw3o5is', u'https://www.youtube.com/embed/wZZ7oFKsKzY', u'https://www.youtube.com/embed/jpYDw7AJDtM', u'https://www.youtube.com/embed/z3U0udLH974', u'https://www.youtube.com/embed/g-6C9LaGIJU', u'https://www.youtube.com/embed/5dsGWM5XGdg', u'https://www.youtube.com/embed/5530I_pYjbo', u'https://www.youtube.com/embed/i-AXImNxCAE', u'https://www.youtube.com/embed/sHWEc-yxfb4', u'https://www.youtube.com/embed/3vDV1F_fngc', u'https://www.youtube.com/embed/XyNlqQId-nk', u'https://www.youtube.com/embed/O1KW3ZkLtuo', u'https://www.youtube.com/embed/EtH9Yllzjcc', u'https://www.youtube.com/embed/jFm3HDLph0M', u'https://www.youtube.com/embed/72NfSwCzFVE', u'https://www.youtube.com/embed/OqQPv78AMw0']
+    return render_template('pages/application.html' , urls = urls)
 
 @app.errorhandler(404)
 def page_not_found(e):

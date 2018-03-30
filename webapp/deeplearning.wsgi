@@ -1,5 +1,7 @@
 #!/usr/bin/python
 import sys
+sys.stdout = sys.__stdout__
+sys.stderr = sys.__stderr__
 import logging
 logging.basicConfig(stream=sys.stderr)
 sys.path.insert(0, "/var/www//caffe/python")
