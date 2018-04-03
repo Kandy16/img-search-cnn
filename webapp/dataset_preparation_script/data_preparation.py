@@ -36,6 +36,17 @@ class DataPrepation(object):
 		# END    CLUSTERING EXAMPLEEEEEEEEEEEEEEEE
 
 
+		# Now we prepare data for reduced feature vector using tsne
+		# Prepare data for cosine similarity for given feature vectors as per model and layer provided
+		obj_cosine = cs.CosineSimilarityCluster(2) # object of cosine used for extract 
+		obj_cosine.nearest_neighbours_for_each_imagevector(config.TSNE_COSINE_IMG_VECTORS_FILEPATH , config.TSNE_COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , extract_info["model_name"] , extract_info["model_layer"].replace("/" , "-"))
+
+		# Prepare data for KNN. vectors.p for given model and layer
+		#obj_knn = knn.KNN() # object of KNN used for search(random images), extract , feedback
+		#obj_knn.prepare_data_for_KNN(config.KNN_IMG_VECTORS_FILEPATH , config.KNN_DATA_SAVE_PATH  , extract_info["model_name"] , extract_info["model_layer"].replace("/" , "-"))
+
+
+
 if __name__ == "__main__":
 	print("Option 1 : bvlc_alexnet -->  fc8")
 	print("Option 2 : bvlc_alexnet -->  fc7")

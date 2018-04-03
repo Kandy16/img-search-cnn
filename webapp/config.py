@@ -27,3 +27,7 @@ KNN_DATA_SAVE_PATH = os.path.join(BASE_DIR, "dataset" ,"KNN")
 # For CLUSTERING Data Preparation
 CLUSTERING_VECTORS_P_PATH = os.path.join(BASE_DIR, "dataset" ,"KNN")
 CLUSTERING_DATA_SAVE_PATH = os.path.join(BASE_DIR, "dataset" ,"CLUSTERING")
+
+# For TSNE DATA preparation
+TSNE_COSINE_IMG_VECTORS_FILEPATH = os.path.join(BASE_DIR, "dataset" , "tSNE_visualization","features" , "reduced_features")
+TSNE_COSINE_NEAREST_NEIGHBOUR_SAVE_PATH = os.path.join(BASE_DIR, "dataset" ,"tSNE_visualization" ,"COSINE")

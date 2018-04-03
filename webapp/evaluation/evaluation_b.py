@@ -10,22 +10,46 @@ class EvaluationB(object):
 		self.cosine_nearest_save_path = cosine_nearest_save_path
 		self.ground_truth = self._get_ground_truth()
 
-	def evaluate(self, modelname, layername):
+	def evaluate(self, number_of_random_sample , modelname, layername):
 		# First we get random images from each category. i.e 5 images from each folders.
-		random_samples = self._get_random_sample(5)
+		random_samples = self._get_random_sample(number_of_random_sample)
 
 		# loop through each of this random sample images
 		# get the feedback given by the certain model
 		# check how many of those elements fall under the ground truth folder val
-		calculated_cosine_neighbours_path = os.path.join("/var/www/img-search-cnn/webapp/dataset/COSINE" , "bvlc_alexnet" , "fc7")
-		for sample in random_samples[:1]:
-			first_three_digit = sample[:3]  # determines which dictionary to look at for ground truth
-			rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , ["001_0016.jpg"])
-			ground_truth = self.ground_truth[first_three_digit]
 
+		#calculated_cosine_neighbours_path = os.path.join(self.cosine_nearest_save_path , "bvlc_alexnet" , "fc7")
+		#calculated_cosine_neighbours_path = os.path.join(self.cosine_nearest_save_path , "bvlc_alexnet" , "fc8")
+
+		#calculated_cosine_neighbours_path = os.path.join(self.cosine_nearest_save_path , "bvlc_reference_caffenet" , "fc7")
+		#calculated_cosine_neighbours_path = os.path.join(self.cosine_nearest_save_path , "bvlc_reference_caffenet" , "fc8")
+		
+		calculated_cosine_neighbours_path = os.path.join(self.cosine_nearest_save_path , modelname , layername)	
+
+		#calculated_cosine_neighbours_path = os.path.join(self.cosine_nearest_save_path , "finetune_flickr_style" , "fc7")
+		#calculated_cosine_neighbours_path = os.path.join(self.cosine_nearest_save_path , "finetune_flickr_style" , "fc8_flickr")
+
+		#calculated_cosine_neighbours_path = os.path.join(self.cosine_nearest_save_path , "ResNet18_ImageNet_CNTK_model" , "z")
+
+		print(calculated_cosine_neighbours_path)
+		precision = [] 
+		
+		for sample in random_samples:
+			first_three_digit = sample[:3]  # determines which dictionary to look at for ground truth
+			#print(sample)
+			rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , [sample])
+			#print("rand images for " , sample , rand_images)
+			ground_truth = self.ground_truth[first_three_digit]
+			
 			# now we compare how many rand_images fall in the ground truth
-			print([i in ground_truth for i in rand_images])
+			bool_result = [i in ground_truth for i in rand_images]
+			precision_val = sum(bool_result) / 10.0
+			if precision_val > 0.0 :
+				precision.append(precision_val)
+			
 		#print(rand_images)
+		#print ("\n",precision)
+		print("Average accuracy" , sum(precision) / len(precision))
 
 
 	def _get_image_list_from_files(self):
@@ -66,9 +90,12 @@ class EvaluationB(object):
 
 if __name__ == "__main__":
 	img_path = "/var/www/img-search-cnn/webapp/dataset/images_eval"
-	obj_eval_b = EvaluationB(img_path , "" , ""  )
+	#obj_eval_b = EvaluationB(img_path , "","/var/www/img-search-cnn/webapp/dataset/COSINE")
+	obj_eval_b = EvaluationB(img_path , "","/var/www/img-search-cnn/webapp/dataset/tSNE_visualization/COSINE")
 	
 	#print(obj_eval_b.get_random_sample(5 , img_path))
 	#n = obj_eval_b._get_ground_truth()
 	#print(n["001"])
-	obj_eval_b.evaluate("", "")
+	# 5 means 5 random images from each folder
+	#obj_eval_b.evaluate(5, "bvlc_googlenet", "pool5-7x7_s1")
+	obj_eval_b.evaluate(5, "finetune_flickr_style", "fc8_flickr")
