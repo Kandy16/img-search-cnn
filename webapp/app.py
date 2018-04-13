@@ -322,10 +322,11 @@ def application():
     obj_iye = ImagesYoutubeExtract(images_save_location)
     urls , origurls = obj_iye.get_urls_search_query("monkey") 
     obj_iye.extract_images_youtube(origurls[0] , "salgaris")
+    splitted_urls = split_array_equally(urls, 3)
 
 
     #urls = [u'https://www.youtube.com/embed/axgFo7QazQo', u'https://www.youtube.com/embed/1Wh8RzcQZr4', u'https://www.youtube.com/embed/WEkSYw3o5is', u'https://www.youtube.com/embed/wZZ7oFKsKzY', u'https://www.youtube.com/embed/jpYDw7AJDtM', u'https://www.youtube.com/embed/z3U0udLH974', u'https://www.youtube.com/embed/g-6C9LaGIJU', u'https://www.youtube.com/embed/5dsGWM5XGdg', u'https://www.youtube.com/embed/5530I_pYjbo', u'https://www.youtube.com/embed/i-AXImNxCAE', u'https://www.youtube.com/embed/sHWEc-yxfb4', u'https://www.youtube.com/embed/3vDV1F_fngc', u'https://www.youtube.com/embed/XyNlqQId-nk', u'https://www.youtube.com/embed/O1KW3ZkLtuo', u'https://www.youtube.com/embed/EtH9Yllzjcc', u'https://www.youtube.com/embed/jFm3HDLph0M', u'https://www.youtube.com/embed/72NfSwCzFVE', u'https://www.youtube.com/embed/OqQPv78AMw0']
-    return render_template('pages/application.html' , urls = urls)
+    return render_template('pages/application.html' , urls = splitted_urls)
 
 @app.errorhandler(404)
 def page_not_found(e):

@@ -113,26 +113,36 @@ if __name__ == "__main__":
 	#modelname = "finetune_flickr_style"
 	#layername = "fc8_flickr"
 
-	modelname = "finetune_flickr_style"
+	#modelname = "finetune_flickr_style"
+	#layername = "fc7"
+
+	#modelname = "ResNet18_ImageNet_CNTK_model"
+	#layername = "z"
+
+	#modelname = "bvlc_reference_caffenet"
+	#layername = "fc7"
+
+	modelname = "bvlc_reference_caffenet"
+	layername = "fc8"
+
+	obj_TSNE1 = TSNEReduceFeatures(vectors_p_path)
+	obj_TSNE1.perform_feature_reduction(feature_save_path, modelname , layername)
+	
+	modelname = "bvlc_alexnet"
 	layername = "fc7"
+	obj_TSNE2 = TSNEReduceFeatures(vectors_p_path)
+	obj_TSNE2.perform_feature_reduction(feature_save_path, modelname , layername)
+	
 
-	# modelname = "ResNet18_ImageNet_CNTK_model"
-	# layername = "z"
+	modelname = "bvlc_alexnet"
+	layername = "fc8"
+	obj_TSNE3 = TSNEReduceFeatures(vectors_p_path)
+	obj_TSNE3.perform_feature_reduction(feature_save_path, modelname , layername)
+	
 
-	# modelname = "bvlc_reference_caffenet"
-	# layername = "fc7"
+	modelname = "bvlc_googlenet"
+	layername = "pool5-7x7_s1"
+	obj_TSNE4 = TSNEReduceFeatures(vectors_p_path)
+	obj_TSNE4.perform_feature_reduction(feature_save_path, modelname , layername)
+	
 
-	# modelname = "bvlc_reference_caffenet"
-	# layername = "fc8"
-
-	# modelname = "bvlc_alexnet"
-	# layername = "fc7"
-
-	# modelname = "bvlc_alexnet"
-	# layername = "fc8"
-
-	# modelname = "bvlc_googlenet"
-	# layername = "pool5-7x7_s1"
-
-	obj_TSNE = TSNEReduceFeatures(vectors_p_path)
-	obj_TSNE.perform_feature_reduction(feature_save_path, modelname , layername)
