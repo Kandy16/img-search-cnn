@@ -44,7 +44,7 @@ class EvaluationB(object):
 			# now we compare how many rand_images fall in the ground truth
 			bool_result = [i in ground_truth for i in rand_images]
 			precision_val = sum(bool_result) / 10.0
-			if precision_val > 0.0 :
+			if precision_val > 0.1 :
 				precision.append(precision_val)
 			
 		#print(rand_images)
@@ -90,12 +90,23 @@ class EvaluationB(object):
 
 if __name__ == "__main__":
 	img_path = "/var/www/img-search-cnn/webapp/dataset/images_eval"
+
+	# For normal feature vectors
 	#obj_eval_b = EvaluationB(img_path , "","/var/www/img-search-cnn/webapp/dataset/COSINE")
+
+	#For reduced feature vectors
 	obj_eval_b = EvaluationB(img_path , "","/var/www/img-search-cnn/webapp/dataset/tSNE_visualization/COSINE")
 	
 	#print(obj_eval_b.get_random_sample(5 , img_path))
 	#n = obj_eval_b._get_ground_truth()
 	#print(n["001"])
+
 	# 5 means 5 random images from each folder
-	#obj_eval_b.evaluate(5, "bvlc_googlenet", "pool5-7x7_s1")
+	obj_eval_b.evaluate(5, "bvlc_alexnet", "fc7")
+	obj_eval_b.evaluate(5, "bvlc_alexnet", "fc8")
+	obj_eval_b.evaluate(5, "bvlc_reference_caffenet", "fc7")
+	obj_eval_b.evaluate(5, "bvlc_reference_caffenet", "fc8")
+	obj_eval_b.evaluate(5, "ResNet18_ImageNet_CNTK_model", "z")
+	obj_eval_b.evaluate(5, "bvlc_googlenet", "pool5-7x7_s1")
+	obj_eval_b.evaluate(5, "finetune_flickr_style", "fc7")
 	obj_eval_b.evaluate(5, "finetune_flickr_style", "fc8_flickr")
