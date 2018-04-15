@@ -45,6 +45,38 @@ class NeuralLayer(Base):
     def __str__(self):
         return self.name
 
+
+
+class QueryString(Base):
+    __tablename__ = "querystring"
+    id = db.Column(db.Integer, primary_key = True)
+    query_string = db.Column(db.String(255))
+    feature_vectors = db.relationship('FeatureVectorsQueryString', backref='feature_vectors')
+    application_videos = db.relationship('ApplicationVideo', backref='application_videos')
+
+    def __str__(self):
+        return self.query_string
+
+class FeatureVectorsQueryString(Base):
+    __tablename__ = "featurevectorsquerystring"
+    id = db.Column(db.Integer, primary_key = True)
+    feature_vector_filename = db.Column(db.String(50))
+    model_name = db.Column(db.String(50))
+    model_layer = db.Column(db.String(50))
+    feature_vectors_id = db.Column(db.Integer, db.ForeignKey('querystring.id'))
+
+    def __str__(self):
+        return self.feature_vector_filename
+
+
+class ApplicationVideo(Base):
+    __tablename__ = "applicationvideo"    
+    id = db.Column(db.Integer, primary_key = True)
+    youtube_url = db.Column(db.String(50))
+    youtube_embed_url = db.Column(db.String(50))
+    relevant = db.Column(db.Boolean, default=False)
+    application_videos_id = db.Column(db.Integer, db.ForeignKey('querystring.id'))
+
 class MachineLearningAlgorithm(Base):
     __tablename__ = 'mlalgorithm'
     id = db.Column(db.Integer, primary_key=True)

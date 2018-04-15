@@ -23,6 +23,9 @@ from utils.utils import split_array_equally
 import config
 from database.models.models import db
 from database.models.models import Feedback, Image, Base, NeuralLayer, NeuralNetworkModel, DefaultSettings
+
+from database.models.models import QueryString, FeatureVectorsQueryString, ApplicationVideo
+
 from sqlalchemy import event, DDL
 import caffe
 
@@ -186,15 +189,26 @@ def feedback():
     query = feedback_dict['query']
     images = feedback_dict['images']
 
+    obj_query_string = QueryString(query_string=query)
+    db.session.add(obj_query_string)
+    db.session.commit()
+
+
+
     # using filenames from neighbours json file test
     calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , "bvlc_alexnet" , "fc7")
     rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , images)
-
+    print("ohooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo" , images)
+    for imgs in rand_images:
+        feature_vector = imgs.split(".")[0] + '.txt'
+        obj_feature_vector_query_string = FeatureVectorsQueryString(feature_vector_filename=feature_vector , model_name = "bvlc_alexnet" , model_layer = "fc7" , feature_vectors = obj_query_string)
+        db.session.add(obj_feature_vector_query_string)
+        db.session.commit()
     #rand_images = ['000001.jpg']
     
     related_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
     splitted_images = split_array_equally(rand_images, 3)
-    return render_template('pages/result.html', query=query, images=splitted_images, related_images=related_images)
+    return render_template('pages/result.html', query=query, images=splitted_images, related_images=related_images , hello = images)
 
 
     # NEED TO ASK MADHU ABOUT DATABASE
