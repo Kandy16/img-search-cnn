@@ -11,8 +11,10 @@ import os
 import pafy
 import pathlib2
 
+
 class ImagesYoutubeExtract(object):
-    def __init__(self , images_save_location):
+    def __init__(self , images_save_location , MAX_DOWNLOAD_FRAME_LENGTH = 100):
+        self.MAX_DOWNLOAD_FRAME_LENGTH = MAX_DOWNLOAD_FRAME_LENGTH
         self.images_save_location = images_save_location
 
     def get_urls_search_query(self, query):
@@ -38,16 +40,26 @@ class ImagesYoutubeExtract(object):
         return query_urls[1:] , orig_urls[1:]
 
     def extract_images_youtube(self, youtube_url , query):
+
         downloadable_video_url = self._get_video_url_replicate_youtube(youtube_url)
         print(downloadable_video_url)
-        self._get_image_frame_from_video(downloadable_video_url , query)
+        #Please take the 11 digit code from youtube url
+        video_id = self._get_youtube_video_id(youtube_url)
+        self._get_image_frame_from_video(downloadable_video_url , query , video_id)
+
+    def _get_youtube_video_id(self, youtube_url):
+        import urlparse
+        url_data = urlparse.urlparse(youtube_url)
+        query = urlparse.parse_qs(url_data.query)
+        video_id = query["v"][0]
+        return video_id
 
     def _get_video_url_replicate_youtube(self, youtube_url):
         video = pafy.new(youtube_url)
         return video.getbest().url
     
 
-    def _get_image_frame_from_video(self, video_url , query):
+    def _get_image_frame_from_video(self, video_url , query , video_id):
         
         # Playing video from file:
         vidcap = cv2.VideoCapture(video_url)
@@ -61,10 +73,11 @@ class ImagesYoutubeExtract(object):
         success = True
         currentFrame = 0
 
-        save_path = os.path.join(self.images_save_location, query)
+        save_path = os.path.join(self.images_save_location, query , video_id)
+        print("OHOOOOOOOOOOOOO" , save_path)
         if not os.path.exists(save_path):
-            pathlib2.Path(os.path.join(self.images_save_location, query)).mkdir(parents=True, exist_ok=True)
-            while currentFrame*10000 <= videotime*1000:
+            pathlib2.Path(os.path.join(self.images_save_location, query , video_id)).mkdir(parents=True, exist_ok=True)
+            while currentFrame < self.MAX_DOWNLOAD_FRAME_LENGTH and currentFrame*10000 <= videotime*1000:
                 vidcap.set(cv2.cv.CV_CAP_PROP_POS_MSEC,(currentFrame*10000)) #extract frame every ten seconds
                 # Saves image of the current frame in jpg file
                 filename = os.path.join(save_path , "frame" + str(currentFrame) + '.jpg' )
@@ -83,10 +96,13 @@ class ImagesYoutubeExtract(object):
 
 if __name__ == "__main__":
     images_save_location = "/var/www/img-search-cnn/webapp/dataset/applicationData"
-    youtube_url = "https://www.youtube.com/watch?v=kQcUamGg7Yw"
+    youtube_url = "https://www.youtube.com/watch?v=zhgDHsns4uo"
     obj_iye = ImagesYoutubeExtract(images_save_location)
 
-    urls , origurls = obj_iye.get_urls_search_query("dog") 
+    query = "dog"
+    urls , origurls = obj_iye.get_urls_search_query(query) 
     print (origurls[0])
-    obj_iye.extract_images_youtube(origurls[0] , "salgaris")
-    #obj_iye.extract_images_youtube(youtube_url , "salgari")
+    print("\n" , urls[0])
+
+    #obj_iye.extract_images_youtube(origurls[0] , query) ## ORIGINAL
+    obj_iye.extract_images_youtube(youtube_url , query) ## TEST 

@@ -8,7 +8,11 @@ import caffe
 import numpy as np
 import pathlib2
 import pdb
+from skimage import io; io.use_plugin('matplotlib')
 np.set_printoptions(threshold='nan')
+
+from PIL import ImageFile 
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class FeatureExtraction(object):
@@ -145,7 +149,19 @@ class FeatureExtraction(object):
         #pdb.set_trace()
         for chunks_image_path_list in image_paths_list_chunk:
 	        #pdb.set_trace()
+	        # thefile = open('test.txt', 'w')
+	        # for item in chunks_image_path_list:
+	        # 	thefile.write("%s\n" % item)
+	        # hehe = "NEXTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+	        # thefile.write("%s\n" % hehe)
+
 	        images_loaded_by_caffe = [caffe.io.load_image(im) for im in chunks_image_path_list] 
+
+	        # images_loaded_by_caffe = []
+	        # for im in chunks_image_path_list:
+	        # 	print(im)
+	        # 	a = caffe.io.load_image(im)
+
 	        # create a net object 
 	        net = caffe.Net(model_def, pretrained_model, caffe.TEST)
 	        #pdb.set_trace()

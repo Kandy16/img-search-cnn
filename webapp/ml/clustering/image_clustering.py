@@ -3,6 +3,7 @@ from sklearn.neighbors import kneighbors_graph
 from sklearn.decomposition import PCA
 from sklearn.cluster import AgglomerativeClustering
 import pathlib2
+from sklearn import decomposition
 
 class ImageClustering(object):
 
@@ -34,7 +35,7 @@ class ImageClustering(object):
         if os.path.exists(vectors_p_file_location):
             vectors_p = {}
             vectors_p = pickle.load(open(vectors_p_file_location , "rb"))
-            data_set = self._prepare_data_set(vectors_p , save_location)
+            data_set = self._prepare_data_set(vectors_p , save_location)  # Memory Error
             connectivity_matrix = self._compute_connectivity_matrix(data_set , save_location)
 
             # This checking is obsolete. Can delete when refactoring
@@ -87,11 +88,20 @@ class ImageClustering(object):
             data_set = np.stack(features_transformed, axis=0)
 
             # PCA will decrease the number of dimensions of our data, it will decrease it as much as possible but will keep 75% of the information from the data
-            pca = PCA(n_components=self.compression_percentage, svd_solver='full')
-            pca.fit(data_set)
-            data_set = pca.transform(data_set)
+            # pca = PCA(n_components=self.compression_percentage, svd_solver='full')
+            # pca.fit(data_set)
+            # data_set = pca.transform(data_set)
+            # pickle.dump(data_set, open(os.path.join(save_location , "data_set.p"), "wb"))
+            # print("-- Completed data_set preparation -- ")
+
+            #Alternate to PCA for memory
+            n_comp = 250
+            svd = decomposition.TruncatedSVD(n_components= n_comp, algorithm='arpack')
+            svd.fit(data_set)
+            data_set = svd.transform(data_set)
             pickle.dump(data_set, open(os.path.join(save_location , "data_set.p"), "wb"))
             print("-- Completed data_set preparation -- ")
+
         return data_set
 
 
