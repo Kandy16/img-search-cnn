@@ -29,12 +29,6 @@ from database.models.models import QueryString, FeatureVectorsQueryString, Appli
 from sqlalchemy import event, DDL
 import caffe
 
-app_settings = {
-    'algorithms': ['KNN', 'Cosine Similarity'],
-    'current': 'KNN',
-    'message': ''
-}
-
 # handling base directory i.e. location of the webapp folder in our case
 basedir = config.BASE_DIR
 
@@ -76,13 +70,6 @@ obj_cosine = cs.CosineSimilarityCluster() # object of KNN used for extract , fee
 # Import for application - Youtube extraction
 from application.images_youtube_extract import ImagesYoutubeExtract
 
-# Import for random images variations
-from ml.clustering import random_images
-vectors_save_location = config.KNN_DATA_SAVE_PATH
-clusters_save_location = config.CLUSTERING_DATA_SAVE_PATH
-modelname = "bvlc_alexnet"
-layername = "fc7"
-obj_random_images = random_images.RandomImages(vectors_save_location , clusters_save_location , modelname , layername, number_of_clusters=10) # object of KNN used for extract , feedback
 
 
 # default query object
@@ -91,6 +78,17 @@ query_object = {
     'layer': 'some layer',
     'algo': 'some algo'
 }
+
+
+# Let us get the default settings setup at the beginning
+app_settings = {}
+
+
+
+# Import for random images variations
+from ml.clustering import random_images
+vectors_save_location = config.KNN_DATA_SAVE_PATH
+clusters_save_location = config.CLUSTERING_DATA_SAVE_PATH
 
 @app.before_first_request
 def setup():
@@ -102,6 +100,16 @@ def setup():
 
     obj_database = Database()
     obj_database.fillin_database(db)
+
+    for x in db.session.query(DefaultSettings).all():
+        app_settings['model_name'] = x.model_name
+        app_settings['model_layer'] = x.layer_name
+        app_settings['ml_algorithm'] = x.ml_algorithm
+
+    modelname = app_settings['model_name']
+    layername = app_settings['model_layer']
+    global obj_random_images 
+    obj_random_images = random_images.RandomImages(vectors_save_location , clusters_save_location , modelname , layername, number_of_clusters=10) # object of KNN used for extract , feedback
 
 
 @app.context_processor
@@ -204,7 +212,9 @@ def feedback():
 
 
     # using filenames from neighbours json file test
-    calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , "bvlc_alexnet" , "fc7")
+    modelname = app_settings['model_name']
+    layername = app_settings['model_layer']
+    calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , modelname , layername)
 
     if images:
         rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , images)
@@ -218,47 +228,13 @@ def feedback():
 
     for imgs in rand_images:
         feature_vector = imgs.split(".")[0] + '.txt'
-        obj_feature_vector_query_string = FeatureVectorsQueryString(feature_vector_filename=feature_vector , model_name = "bvlc_alexnet" , model_layer = "fc7" , feature_vectors = obj_query_string)
+        obj_feature_vector_query_string = FeatureVectorsQueryString(feature_vector_filename=feature_vector , model_name = modelname , model_layer = layername , feature_vectors = obj_query_string)
         db.session.add(obj_feature_vector_query_string)
         db.session.commit()
     
     related_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
     splitted_images = split_array_equally(rand_images, 3)
     return render_template('pages/result.html', query=query, images=splitted_images, related_images=related_images , hello = images)
-
-
-    # NEED TO ASK MADHU ABOUT DATABASE
-    # feedback_raw = request.form.to_dict()
-    # feedback_dict = json.loads(feedback_raw['feedback'])
-    # neighbour = for_feedback(feedback_dict['images'])
-    # query = feedback_dict['query']
-    # images = feedback_dict['images']
-    # query_vector = ''
-
-    # feedback = db.session.query(Feedback).filter_by(query=query).first()
-
-    # if feedback:
-    #     feedback.query_vector = query_vector
-    # else:
-    #     feedback = Feedback(query=query, feature_vector=query_vector)
-
-    # db.session.add(feedback)
-    # db.session.commit()
-
-    # db.session.add(feedback)
-    # db.session.commit()
-    # db_images = []
-    # for img in images:
-    #     db_images.append(Image(image_url=img, feedback_id=feedback.id))
-
-    # db.session.add_all(db_images)
-    # db.session.commit()
-
-    # rand_images = ["014999.jpg" , "000090.jpg"]
-    # for val in neighbour:
-    #     rand_images.append(val[1].replace('txt', 'jpg'))
-    # search_query = "cat"
-    # return render_template('pages/result.html', query=search_query, images=rand_images)
 
 
 @app.route('/settings', methods=['post', 'get'])
@@ -272,7 +248,6 @@ def settings():
         except:
             abort(404)
 
-        app_settings['current'] = 'Cosine'
         allrow = default_settings_dict
 
         # Need to update database with new data received from server as post i.e when default button is pressed
@@ -302,6 +277,12 @@ def settings():
                 target_row = db.session.query(NeuralLayer).filter_by(id = row.id).first()
                 target_row.extracted = False
                 db.session.commit()
+    # Let us get the default settings setup at the beginning
+    for x in db.session.query(DefaultSettings).all():
+        app_settings['model_name'] = x.model_name
+        app_settings['model_layer'] = x.layer_name
+        app_settings['ml_algorithm'] = x.ml_algorithm
+
     return render_template('pages/settings.html', app_settings=app_settings , allrow = allrow )
 
 
