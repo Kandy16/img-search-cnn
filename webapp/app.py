@@ -188,7 +188,7 @@ def feedback():
     #neighbour = for_feedback(feedback_dict['images'])
     query = feedback_dict['query']
     images = feedback_dict['images']
-    related_images = feedback_dict['related_images']
+    related_images_feedback = feedback_dict['related_images']
 
     obj_query_string = QueryString(query_string=query)
     db.session.add(obj_query_string)
