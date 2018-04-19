@@ -153,21 +153,33 @@ def search():
     search_query = request.form.get('search')
     # ml_settings = request.form.get('ml_settings')
 
+
+    query_exists = db.session.query(db.exists().where(QueryString.query_string == search_query)).scalar()
     # condition 1
     # when query is totally new
-    #rand_images = obj_knn.get_random_images(10)  #
-    #related_images = obj_knn.get_random_images(10)
-    rand_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
+    if not query_exists:
+        obj_query_string = QueryString(query_string=search_query)
+        db.session.add(obj_query_string)
+        db.session.commit()
+        rand_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
+
+    else:
+    	# Now load the random images from existing query
+    	rand_images = []
+    	obj_query_string = db.session.query(QueryString).filter_by(query_string=search_query).first()
+    	queried_images = db.session.query(FeatureVectorsQueryString).filter_by(feature_vectors_id=obj_query_string.id)
+    	if queried_images.first() is None:
+    		rand_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
+        else:
+        	for obj in queried_images:
+    			rand_img = obj.feature_vector_filename.split(".")[0] + '.jpg'
+    			rand_images.append(rand_img)        	
+    
     related_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
+
 
     # condition 2
     # when query is already in database
-
-    # TODO remove it
-    # rand_images = []
-    # for i in range(1, 11):
-    #     rand_images.append(str(i) + '.jpg')
-    # related_images = rand_images
 
     splitted_images = split_array_equally(rand_images, 3)
     return render_template('pages/result.html', query=search_query, images=splitted_images, related_images=related_images)
@@ -190,22 +202,22 @@ def feedback():
     images = feedback_dict['images']
     related_images_feedback = feedback_dict['related_images']
 
-    obj_query_string = QueryString(query_string=query)
-    db.session.add(obj_query_string)
-    db.session.commit()
-
+    # get object row for the query
+    obj_query_string = db.session.query(QueryString).filter_by(query_string=query).first()
 
 
     # using filenames from neighbours json file test
     calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , "bvlc_alexnet" , "fc7")
     rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , images)
-    print("ohooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo" , images)
+
+    db.session.query(FeatureVectorsQueryString).filter_by(feature_vectors_id=obj_query_string.id).delete()
+    db.session.commit()
+
     for imgs in rand_images:
         feature_vector = imgs.split(".")[0] + '.txt'
         obj_feature_vector_query_string = FeatureVectorsQueryString(feature_vector_filename=feature_vector , model_name = "bvlc_alexnet" , model_layer = "fc7" , feature_vectors = obj_query_string)
         db.session.add(obj_feature_vector_query_string)
         db.session.commit()
-    #rand_images = ['000001.jpg']
     
     related_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
     splitted_images = split_array_equally(rand_images, 3)
