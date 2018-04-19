@@ -6,6 +6,7 @@ import numpy as np
 from ast import literal_eval
 import pathlib2
 import pdb
+from math import ceil
 
 class CosineSimilarityCluster(object):
   def __init__(self,  dimension = 1000 , n_nearest_neighbors = 10 , trees= 100):
@@ -79,19 +80,52 @@ class CosineSimilarityCluster(object):
       # TODO we have to deal with list of images given as feedback to us
 
       # For now we only take the first image
-      str1 = relevant_images[0]
-      image_name = os.path.splitext(str1)[0]
+      length_feedback = len(relevant_images)
+      from_each_feedback_take = int(ceil(float(10) / length_feedback))
+      result = []
+      result.extend(relevant_images)
+      print("okay so the result is this" , result)
 
-      file_path = os.path.join(calculated_cosine_neighbours_path , image_name +".json")
+      for rel_img in relevant_images:
+        image_name = os.path.splitext(rel_img)[0]
+        file_path = os.path.join(calculated_cosine_neighbours_path , image_name +".json")
+        with open(file_path) as f:
 
-      with open(file_path) as f:
           for line in f:  # note there will just be one line in the file i.e list of dictionaries
             mainlist = list(literal_eval(line))
-      return [i['filename'] + '.jpg' for i in mainlist]
+
+
+        # Doing this to remove duplicates
+
+        for i in range(1,from_each_feedback_take):
+          while True:
+            json_val = mainlist.pop(0)
+            value = json_val['filename'] + '.jpg'  
+            if value not in result:
+              result.append(value)
+              break
+        #result.extend([i['filename'] + '.jpg' for i in mainlist][:from_each_feedback_take])
+
+
+      # str1 = relevant_images[0]
+      # image_name = os.path.splitext(str1)[0]
+
+      # file_path = os.path.join(calculated_cosine_neighbours_path , image_name +".json")
+
+      # with open(file_path) as f:
+      #     for line in f:  # note there will just be one line in the file i.e list of dictionaries
+      #       mainlist = list(literal_eval(line))
+      # first = [i['filename'] + '.jpg' for i in mainlist]
+      # return first
+      return result[:10]
 
 if __name__ == "__main__":
-  obj = CosineSimilarityCluster()
-  obj.nearest_neighbours_for_each_imagevector()
+  obj_cosine = CosineSimilarityCluster()
+  #obj.nearest_neighbours_for_each_imagevector()
+  COSINE_NEAREST_NEIGHBOUR_SAVE_PATH = "/var/www/img-search-cnn/webapp/dataset/COSINE"
+  calculated_cosine_neighbours_path = os.path.join(COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , "bvlc_alexnet" , "fc7")
+  images = ["68671.jpg"]
+  rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , images)
 #
 # using filenames from neighbours json file test
 #print(get_filenames_cosine_neighbour('dup_cosine_nearest_neighbors/014999.json'))
