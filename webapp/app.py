@@ -163,6 +163,8 @@ def search():
         db.session.commit()
         rand_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
 
+    # condition 2
+    # when query is already in database
     else:
     	# Now load the random images from existing query
     	rand_images = []
@@ -176,11 +178,6 @@ def search():
     			rand_images.append(rand_img)        	
     
     related_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
-
-
-    # condition 2
-    # when query is already in database
-
     splitted_images = split_array_equally(rand_images, 3)
     return render_template('pages/result.html', query=search_query, images=splitted_images, related_images=related_images)
 
@@ -208,7 +205,13 @@ def feedback():
 
     # using filenames from neighbours json file test
     calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , "bvlc_alexnet" , "fc7")
-    rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , images)
+
+    if images:
+        rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , images)
+    elif related_images_feedback:
+        rand_images = obj_cosine.get_feedback(calculated_cosine_neighbours_path , related_images_feedback)
+    else:
+        rand_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
 
     db.session.query(FeatureVectorsQueryString).filter_by(feature_vectors_id=obj_query_string.id).delete()
     db.session.commit()
