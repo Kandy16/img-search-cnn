@@ -17,7 +17,7 @@ class ImagesYoutubeExtract(object):
         self.MAX_DOWNLOAD_FRAME_LENGTH = MAX_DOWNLOAD_FRAME_LENGTH
         self.images_save_location = images_save_location
 
-    def get_urls_search_query(self, query):
+    def get_urls_search_query(self, query , MAX_NUMBER_OF_URLS = 12):
         import urllib
         import urllib2
         from bs4 import BeautifulSoup
@@ -37,12 +37,10 @@ class ImagesYoutubeExtract(object):
             if "embed/" in url :
                 query_urls.append(url)
                 orig_urls.append(urlorig)
-        return query_urls[1:] , orig_urls[1:]
+        return query_urls[1:MAX_NUMBER_OF_URLS] , orig_urls[1:MAX_NUMBER_OF_URLS]
 
     def extract_images_youtube(self, youtube_url , query):
-
         downloadable_video_url = self._get_video_url_replicate_youtube(youtube_url)
-        print(downloadable_video_url)
         #Please take the 11 digit code from youtube url
         video_id = self._get_youtube_video_id(youtube_url)
         self._get_image_frame_from_video(downloadable_video_url , query , video_id)
@@ -74,8 +72,8 @@ class ImagesYoutubeExtract(object):
         currentFrame = 0
 
         save_path = os.path.join(self.images_save_location, query , video_id)
-        print("OHOOOOOOOOOOOOO" , save_path)
         if not os.path.exists(save_path):
+            print("----- Downloading frames for video Id : " , video_id)
             pathlib2.Path(os.path.join(self.images_save_location, query , video_id)).mkdir(parents=True, exist_ok=True)
             while currentFrame < self.MAX_DOWNLOAD_FRAME_LENGTH and currentFrame*10000 <= videotime*1000:
                 vidcap.set(cv2.cv.CV_CAP_PROP_POS_MSEC,(currentFrame*10000)) #extract frame every ten seconds
@@ -87,8 +85,9 @@ class ImagesYoutubeExtract(object):
 
                 # To stop duplicate images
                 currentFrame += 1
+            print("----- Download Complete. Saved at location " , save_path)
         else: 
-            print ('Current query videos already extracted')        
+            print ('Current query videos already extracted at location : ' , save_path)        
 
         # When everything done, release the capture
         vidcap.release()
@@ -101,8 +100,8 @@ if __name__ == "__main__":
 
     query = "dog"
     urls , origurls = obj_iye.get_urls_search_query(query) 
-    print (origurls[0])
+    print (len(origurls))
     print("\n" , urls[0])
 
     #obj_iye.extract_images_youtube(origurls[0] , query) ## ORIGINAL
-    obj_iye.extract_images_youtube(youtube_url , query) ## TEST 
+    #obj_iye.extract_images_youtube(youtube_url , query) ## TEST 
