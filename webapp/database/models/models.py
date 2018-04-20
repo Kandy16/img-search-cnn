@@ -52,6 +52,7 @@ class QueryString(Base):
     id = db.Column(db.Integer, primary_key = True)
     query_string = db.Column(db.String(255))
     feature_vectors = db.relationship('FeatureVectorsQueryString', backref='feature_vectors')
+    application_data_collected = db.Column(db.Boolean, default=False)
     application_videos = db.relationship('ApplicationVideo', backref='application_videos')
 
     def __str__(self):
