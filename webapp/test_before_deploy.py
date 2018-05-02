@@ -50,11 +50,11 @@ session = DBSession()
 not_processed_queries = [x.query_string for x in session.query(QueryString).filter_by(application_data_collected=False).all()]
 print(not_processed_queries)
 
-# Now we will use eash of these query words and update database with youtube urls
+# Now we will use each of these query words and update database with youtube urls
 
 images_save_location = "/var/www/img-search-cnn/webapp/dataset/applicationData"
 obj_iye = ImagesYoutubeExtract(images_save_location)
-MAX_NUMBER_OF_URLS = 4
+MAX_NUMBER_OF_URLS = 15
 if not_processed_queries:	
 	for query in not_processed_queries:
 		embed_urls , origurls = obj_iye.get_urls_search_query(query , MAX_NUMBER_OF_URLS)
@@ -68,7 +68,8 @@ if not_processed_queries:
 			obj_application_data = ApplicationVideo(youtube_url=url , youtube_embed_url = embed_urls[idx] ,application_videos = obj_query_string)
 			session.add(obj_application_data)
 			session.commit()
-			obj_iye.extract_images_youtube(url , query) ## ORIGINAL
+			#obj_iye.extract_images_youtube(url , query) ## ORIGINAL
 else:
+	
 	print("Everything up to date..")
 	

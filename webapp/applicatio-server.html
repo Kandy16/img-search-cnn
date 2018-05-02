@@ -27,9 +27,10 @@
 		{%for ur in url %}
 		<div class="col-xs-4 video-irrelevant">
 		  <iframe width="240"
-		    src="{{ur}}" frameborder="0" allowfullscreen >
-      </iframe>
-		</div>
+		    src={{result['url']}} frameborder="0" allowfullscreen >
+		  </iframe>
+    </div>
+    <label for="male"> Nepal hooooo === + {{ur['relevance']}} </label>
 		{%endfor%}
 	</div>
 

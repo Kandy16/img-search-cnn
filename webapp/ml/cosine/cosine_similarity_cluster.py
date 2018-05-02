@@ -75,7 +75,8 @@ class CosineSimilarityCluster(object):
     if not os.path.exists(calculated_cosine_neighbours_path):
       print("No such file exits where we can load the nearest neighbours json file from")
       print("Please call nearest_neighbours_for_each_imagevector from cosine_similarity_cluster class for creating relevant folder.")
-      return []
+      #pdb.set_trace()
+      return ["1.jpg" , "2.jpg"]
     else:       
       # TODO we have to deal with list of images given as feedback to us
 

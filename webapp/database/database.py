@@ -1,4 +1,4 @@
-from .models.models import NeuralNetworkModel , MachineLearningAlgorithm, NeuralLayer, DefaultSettings
+from .models.models import NeuralNetworkModel , MachineLearningAlgorithm, NeuralLayer, DefaultSettings , QueryString
 from features_extraction.EnumModels import Models
 
 class Database(object):
@@ -9,6 +9,10 @@ class Database(object):
 
 		obj_default_settings = DefaultSettings(model_name=Models.bvlc_alexnet.name , layer_name = "fc8", ml_algorithm="cosine" )
 		db.session.add(obj_default_settings)
+		db.session.commit()
+
+		obj_query_string = QueryString(query_string="")
+		db.session.add(obj_query_string)
 		db.session.commit()
 
 		# Now we fill in the models using the ENUMMODELS

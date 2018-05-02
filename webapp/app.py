@@ -94,16 +94,16 @@ clusters_save_location = config.CLUSTERING_DATA_SAVE_PATH
 def setup():
     # Recreate database each time for demo..
     # TODO Remove this once table is created.
-    Base.metadata.drop_all(bind=db.engine)
-    Base.metadata.create_all(bind=db.engine)
-    # Till Here Remove
+    # Base.metadata.drop_all(bind=db.engine)
+    # Base.metadata.create_all(bind=db.engine)
+    # # Till Here Remove
 
-    obj_database = Database()
-    obj_database.fillin_database(db)
+    # obj_database = Database()
+    # obj_database.fillin_database(db)
 
     for x in db.session.query(DefaultSettings).all():
         app_settings['model_name'] = x.model_name
-        app_settings['model_layer'] = x.layer_name
+        app_settings['model_layer'] = x.layer_name.replace("/" , "-")
         app_settings['ml_algorithm'] = x.ml_algorithm
 
     modelname = app_settings['model_name']
@@ -125,6 +125,9 @@ def inject_now():
 
     for x in db.session.query(DefaultSettings).all():
         default_settings = {"model_name" : x.model_name , "layer_name": x.layer_name , "ml_algorithm" : x.ml_algorithm}
+        app_settings['model_name'] = x.model_name
+        app_settings['model_layer'] = x.layer_name.replace("/" , "-")
+        app_settings['ml_algorithm'] = x.ml_algorithm
 
     for model in all_neural_models:
         models_names.append(model.name)
@@ -144,7 +147,13 @@ def suggestion():
     # Call the database
     # Store in variable
     # result = ['hello', 'world']
-    return jsonify(['hello', 'world', 'this'])
+
+    queries_so_far = []
+    queries_string = db.session.query(QueryString).all()
+    for row in queries_string:
+        queries_so_far.append(row.query_string)
+
+    return jsonify(queries_so_far)
 
 @app.route('/apps', methods=['get', ])
 def apps():
@@ -159,13 +168,15 @@ def index():
 @app.route('/search', methods=['POST', ])
 def search():
     search_query = request.form.get('search')
+    # make it lower case all search query
+    search_query = search_query.lower()
     # ml_settings = request.form.get('ml_settings')
 
 
-    query_exists = db.session.query(db.exists().where(QueryString.query_string == search_query)).scalar()
+    query_exists = db.session.query(QueryString).filter_by(query_string=search_query).first()
     # condition 1
     # when query is totally new
-    if not query_exists:
+    if query_exists is None:
         obj_query_string = QueryString(query_string=search_query)
         db.session.add(obj_query_string)
         db.session.commit()
@@ -213,7 +224,7 @@ def feedback():
 
     # using filenames from neighbours json file test
     modelname = app_settings['model_name']
-    layername = app_settings['model_layer']
+    layername = app_settings['model_layer'].replace("/" , "-")
     calculated_cosine_neighbours_path = os.path.join(config.COSINE_NEAREST_NEIGHBOUR_SAVE_PATH , modelname , layername)
 
     if images:
@@ -234,7 +245,8 @@ def feedback():
     
     related_images = obj_random_images.get_n_random_images_full_random(config.TEST_CAFEE_IMAGES_PATH , 10)
     splitted_images = split_array_equally(rand_images, 3)
-    return render_template('pages/result.html', query=query, images=splitted_images, related_images=related_images , hello = images)
+    hello = [modelname , layername]
+    return render_template('pages/result.html', query=query, images=splitted_images, related_images=related_images , hello = hello)
 
 
 @app.route('/settings', methods=['post', 'get'])
@@ -280,7 +292,7 @@ def settings():
     # Let us get the default settings setup at the beginning
     for x in db.session.query(DefaultSettings).all():
         app_settings['model_name'] = x.model_name
-        app_settings['model_layer'] = x.layer_name
+        app_settings['model_layer'] = x.layer_name.replace("/" , "-")
         app_settings['ml_algorithm'] = x.ml_algorithm
 
     return render_template('pages/settings.html', app_settings=app_settings , allrow = allrow )
@@ -326,18 +338,47 @@ def extract():
     return render_template('pages/settings.html', app_settings=app_settings , message=message)
 
 
-@app.route('/application', methods=['get',])
+@app.route('/application', methods=['post', 'get'])
 def application():
-    images_save_location = "/var/www/img-search-cnn/webapp/dataset/applicationData"
-    #youtube_url = "https://www.youtube.com/watch?v=kQcUamGg7Yw"
-    obj_iye = ImagesYoutubeExtract(images_save_location)
-    urls , origurls = obj_iye.get_urls_search_query("monkey") 
-    obj_iye.extract_images_youtube(origurls[0] , "salgaris")
-    splitted_urls = split_array_equally(urls, 3)
+    # images_save_location = "/var/www/img-search-cnn/webapp/dataset/applicationData"
+    # #youtube_url = "https://www.youtube.com/watch?v=kQcUamGg7Yw"
+    # obj_iye = ImagesYoutubeExtract(images_save_location)
+    # urls , origurls = obj_iye.get_urls_search_query("monkey") 
+    # obj_iye.extract_images_youtube(origurls[0] , "salgaris")
+    # splitted_urls = split_array_equally(urls, 3)
 
+    #get all urls from database and make it green if it is applicable
+    if request.method == 'POST':
+        search_query = request.form.get('search')
+        # make it lower case all search query
+        #search_query = "cat"
+        search_query = search_query.lower()
+        get_text = ""
+        urls = []
+        try:
+            
 
-    #urls = [u'https://www.youtube.com/embed/axgFo7QazQo', u'https://www.youtube.com/embed/1Wh8RzcQZr4', u'https://www.youtube.com/embed/WEkSYw3o5is', u'https://www.youtube.com/embed/wZZ7oFKsKzY', u'https://www.youtube.com/embed/jpYDw7AJDtM', u'https://www.youtube.com/embed/z3U0udLH974', u'https://www.youtube.com/embed/g-6C9LaGIJU', u'https://www.youtube.com/embed/5dsGWM5XGdg', u'https://www.youtube.com/embed/5530I_pYjbo', u'https://www.youtube.com/embed/i-AXImNxCAE', u'https://www.youtube.com/embed/sHWEc-yxfb4', u'https://www.youtube.com/embed/3vDV1F_fngc', u'https://www.youtube.com/embed/XyNlqQId-nk', u'https://www.youtube.com/embed/O1KW3ZkLtuo', u'https://www.youtube.com/embed/EtH9Yllzjcc', u'https://www.youtube.com/embed/jFm3HDLph0M', u'https://www.youtube.com/embed/72NfSwCzFVE', u'https://www.youtube.com/embed/OqQPv78AMw0']
-    return render_template('pages/application.html' , urls = splitted_urls)
+            query_obj = db.session.query(QueryString).filter_by(query_string=search_query).first()
+
+            load_all_rows = db.session.query(ApplicationVideo).filter_by(application_videos_id = query_obj.id).all()
+            for row in load_all_rows:
+                video_info = {"url" : row.youtube_embed_url, "relevance" : "true"}
+                urls.append(video_info)
+
+            if not urls:
+            	get_text = "This Query word :- " + search_query + " has not yet been processed."
+
+            #urls = [u'https://www.youtube.com/embed/axgFo7QazQo', u'https://www.youtube.com/embed/1Wh8RzcQZr4', u'https://www.youtube.com/embed/WEkSYw3o5is', u'https://www.youtube.com/embed/wZZ7oFKsKzY', u'https://www.youtube.com/embed/jpYDw7AJDtM', u'https://www.youtube.com/embed/z3U0udLH974', u'https://www.youtube.com/embed/g-6C9LaGIJU', u'https://www.youtube.com/embed/5dsGWM5XGdg', u'https://www.youtube.com/embed/5530I_pYjbo', u'https://www.youtube.com/embed/i-AXImNxCAE', u'https://www.youtube.com/embed/sHWEc-yxfb4', u'https://www.youtube.com/embed/3vDV1F_fngc', u'https://www.youtube.com/embed/XyNlqQId-nk', u'https://www.youtube.com/embed/O1KW3ZkLtuo', u'https://www.youtube.com/embed/EtH9Yllzjcc', u'https://www.youtube.com/embed/jFm3HDLph0M', u'https://www.youtube.com/embed/72NfSwCzFVE', u'https://www.youtube.com/embed/OqQPv78AMw0']
+            splitted_urls = split_array_equally(urls, 3)
+            return render_template('pages/application.html' , urls = splitted_urls , get_text = get_text)
+        except:
+        	splitted_urls = split_array_equally(urls, 3)
+        	return render_template('pages/application.html' , urls = splitted_urls , get_text = "This Query word :- " + search_query + " has not yet been processed.")
+        
+    else:
+            splitted_urls = split_array_equally([],3)
+            return render_template('pages/application.html' , urls = splitted_urls , get_text = "Please search for the query word")   
+
 
 @app.errorhandler(404)
 def page_not_found(e):
